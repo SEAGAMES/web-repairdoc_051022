@@ -307,7 +307,7 @@ export default {
     async testPrint() {
       //loadImg
       const logoHeader = await this.convertImg(
-        "http://172.16.0.5:3000/picture/PICTURE2/Art%20Event%20Logo2.jpg"
+        "http://192.168.3.5:3000/picture/PICTURE2/Art%20Event%20Logo2.jpg"
       );
 
       var rows = [];
@@ -467,7 +467,7 @@ export default {
     async testPrint2() {
       //loadImg
       const logoHeader = await this.convertImg(
-        "http://172.16.0.5:3000/picture/PICTURE2/Art%20Event%20Logo2.jpg"
+        "http://192.168.3.5:3000/picture/PICTURE2/Art%20Event%20Logo2.jpg"
       );
 
       var rows = [];

@@ -1,0 +1,67 @@
+{
+  "name": "web-repairdoc",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "chart.js": "^2.9.4",
+    "chartjs-plugin-datalabels": "^2.0.0",
+    "core-js": "^3.6.5",
+    "cors": "^2.8.5",
+    "image-to-base64": "^2.2.0",
+    "moment-timezone": "^0.5.33",
+    "pdfmake": "^0.2.2",
+    "sweetalert2": "^10.15.6",
+    "vue": "^2.6.11",
+    "vue-axios": "^3.2.4",
+    "vue-chartjs": "^3.5.1",
+    "vue-html-to-paper": "^1.4.1",
+    "vue-moment": "^4.1.0",
+    "vue-mqtt": "^2.0.3",
+    "vue-router": "^3.2.0",
+    "vue-spinner": "^1.0.4",
+    "vue-sweetalert2": "^4.2.1",
+    "vuetify": "^2.4.0",
+    "vuex": "^3.4.0"
+  },
+  "devDependencies": {
+    "@mdi/font": "^5.9.55",
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-router": "~4.5.0",
+    "@vue/cli-plugin-vuex": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "@vue/eslint-config-prettier": "^6.0.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-prettier": "^3.1.3",
+    "eslint-plugin-vue": "^6.2.2",
+    "gulp": "^4.0.2",
+    "material-design-icons-iconfont": "^6.1.0",
+    "pdfmake-font-generator": "^1.0.1",
+    "prettier": "^1.19.1",
+    "sass": "^1.32.0",
+    "sass-loader": "^10.0.0",
+    "url-loader": "^4.1.1",
+    "vue-cli-plugin-vuetify": "~2.2.2",
+    "vue-template-compiler": "^2.6.11",
+    "vuetify-loader": "^1.7.0"
+  },
+  "description": "## Project setup ``` npm install ```",
+  "main": ".eslintrc.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kangamol/WebProgramAE.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kangamol/WebProgramAE/issues"
+  },
+  "homepage": "https://github.com/Kangamol/WebProgramAE#readme"
+}
