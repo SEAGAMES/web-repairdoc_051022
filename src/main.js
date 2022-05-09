@@ -8,8 +8,9 @@ import 'material-design-icons-iconfont/dist/material-design-icons.css'
 import 'sweetalert2/dist/sweetalert2.min.css';
 import VueSweetalert2 from 'vue-sweetalert2';
 import VueMqtt from 'vue-mqtt';
-import VueHtmlToPaper from 'vue-html-to-paper';
+// import VueHtmlToPaper from 'vue-html-to-paper';
 import moment from 'moment-timezone'
+import ImageUploader from 'vue-image-upload-resize'
 
 
 // const options = {
@@ -32,9 +33,9 @@ import moment from 'moment-timezone'
 Vue.use(Vuemoment, {
     moment
 });
-Vue.use(VueSweetalert2);
+Vue.use(VueSweetalert2, ImageUploader);
 Vue.use(VueMqtt, 'ws://192.168.3.7:8083/mqtt', {clientId: 'WebClient-' + parseInt(Math.random() * 100000)})
-Vue.use(VueHtmlToPaper);
+// Vue.use(VueHtmlToPaper);
 
 Vue.config.productionTip = false;
 

@@ -27,8 +27,8 @@ export default {
     }
   },
   methods: {
-    onClickLogOff() {
-      this.$store.dispatch("doLogout");
+    async onClickLogOff() {
+     await this.$store.dispatch("doLogout");
     }
   }
 };

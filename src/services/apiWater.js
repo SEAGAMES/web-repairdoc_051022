@@ -1,8 +1,8 @@
 import axios from "axios"
 
 
-const apiURL = `http://192.168.3.7:3000/apiwater/`;
-const apiCheckStatus = "http://192.168.3.7:3000/api/v4/clients/";
+const apiURL = `http://192.168.3.7:60009/apiwater/`;
+const apiCheckStatus = "http://192.168.3.7:60009/api/v4/clients/";
 
 const getWaterReportMONTH = async () => {
     const d = new Date();
@@ -63,7 +63,7 @@ const getColorWeekend = async () => {
 const checkStatusDevice = async () => {
     // const serial = 'esp32-bc8686d108f0';
     try {
-        const result = await axios.get(`http://192.168.3.7:3000/api/v4/clients/esp32-bc8686d108f0`, {auth: {
+        const result = await axios.get(`http://192.168.3.7:60009/api/v4/clients/esp32-bc8686d108f0`, {auth: {
             username: 'admin',
             password: 'public'
         }});

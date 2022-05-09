@@ -1,5 +1,5 @@
 <template>
-  <v-container grid-list-xs class="fontPrompt">
+  <v-container grid-list-xs class="fontPrompt" v-if="!$store.state.loadingPage">
     <v-row class="mt-10">
       <v-spacer></v-spacer>
       <h1>ประกาศเกี่ยวกับ IT และซ่อมบำรุง</h1>
@@ -116,7 +116,11 @@ import apiPostNews from "../services/apiPostnews";
 export default {
   name: "home",
   async mounted() {
+    this.$store.state.loadingPage = true;
     await this.loadData();
+    setTimeout(() => {
+      this.$store.state.loadingPage = false;
+    }, 200);
     // console.log(this.$store.getters.username)
   },
   data() {

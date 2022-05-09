@@ -3,39 +3,47 @@ import VueRouter from "vue-router";
 import Login from "../views/Login.vue";
 import Home from "../views/Home.vue";
 import About from "../views/About.vue";
-import RepairdocMaster from "../views/repairdoc/repiarDocMaster.vue";
-import RepairdocEdit from "../views/repairdoc/repairdocEdit.vue";
-import RepairdocCreate from "../views/repairdoc/repairdocCreate.vue";
-import RepairdocDetail from "../views/repairdoc/repairdocDetail.vue"
-import DeviceMaster from "../views/Device/deviceMaster.vue";
-import DeviceDetail from "../views/Device/deviceDetail.vue";
-import DeviceCreate from "../views/Device/deviceCreate.vue";
-import Report from "../views/report.vue";
-import MouldMaster from "../views/Mould/MouldMaster.vue";
-import MouldCreate  from "../views/Mould/MouldCreate.vue";
-import MouldModify from "../views/Mould/MouldModify.vue";
-import MouldMultiCreate from "../views/Mould/MouldMultiCreate.vue"
-import MouldDetail from "../views/Mould/MouldDetail.vue"
-import MouldHistory from '../views/Mould/MouldHistory.vue'
 
-import api from "../services/api";
 
+// import api from "../services/api";
 
 
 Vue.use(VueRouter);
 
-function checkLogin(to, from, next) {
-    // console.log(api.isLoggedIn())
-    if (api.isLoggedIn() == true) {
-        next()
-    } else {
-        next('/login')
-    }
 
-
+const checkLogin = async(to, from, next) => {
+    next()
+    // if (await api.isLoggedIn() === true) {
+    //     next()
+    // } else {
+    //     next()
+    // }
 }
 
 const routes = [
+    {
+        path: "/home",
+        name: "home",
+        component: Home,
+        beforeEnter: checkLogin
+    },
+    {
+        path: "/about",
+        name: "about",
+        component: About,
+        beforeEnter: checkLogin
+    },
+    {
+        path: "/login",
+        name: "login",
+        component: Login,
+    },
+    {
+        path: "/report",
+        name: "report",
+        component: () => import(/* webpackChunkName: "report" */ "../views/report.vue"),
+        beforeEnter: checkLogin
+    },
     {
         path: "/water-report",
         name: "water-report",
@@ -57,96 +65,80 @@ const routes = [
     {
         path: "/repairdoc-master",
         name: "repairdoc-master",
-        component: RepairdocMaster,
+        component: () => import(/* webpackChunkName: "repairdoc-master" */ "../views/repairdoc/repiarDocMaster.vue"),
         beforeEnter: checkLogin
     },
     {
         path: "/repairdoc-edit",
         name: "repairdoc-edit",
-        component: RepairdocEdit,
+        component: () => import(/* webpackChunkName: "repairdoc-edit" */ "../views/repairdoc/repairdocEdit.vue"),
+        beforeEnter: checkLogin
+    },
+    {
+        path: "/repairdoc-detail",
+        name: "repairdoc-detail",
+        component: () => import(/* webpackChunkName: "repairdoc-detail" */ "../views/repairdoc/repairdocDetail.vue"),
         beforeEnter: checkLogin
     },
     {
         path: "/repairdoc-create",
         name: "repairdoc-create",
-        component: RepairdocCreate,
+        component: () => import(/* webpackChunkName: "repairdoc-create" */ "../views/repairdoc/repairdocCreate.vue"),
         beforeEnter: checkLogin
-    },
-    {
-        path: "/home",
-        name: "home",
-        component: Home,
-        beforeEnter: checkLogin
-    },
-    {
-        path: "/about",
-        name: "about",
-        component: About,
-        beforeEnter: checkLogin
-    },
-    {
-        path: "/login",
-        name: "login",
-        component: Login,
     },
     {
         path: "/device-master",
         name: "device-master",
-        component: DeviceMaster,
+        component: () => import(/* webpackChunkName: "device-master" */ "../views/Device/deviceMaster.vue"),
         beforeEnter: checkLogin
     },
     {
         path: "/device-detail/:id",
         name: "device-detail",
-        component: DeviceDetail,
+        params: true,
+        component: () => import(/* webpackChunkName: "deviceDetail" */ "../views/Device/deviceDetail.vue"),
         beforeEnter: checkLogin
     },
     {
         path: "/device-create",
         name: "device-create",
-        component: DeviceCreate,
-        beforeEnter: checkLogin
-    },
-    {
-        path: "/report",
-        name: "report",
-        component: Report,
+        component: () => import(/* webpackChunkName: "device-create" */ "../views/Device/deviceCreate.vue"),
         beforeEnter: checkLogin
     },
     {
         path: "/mould-master",
         name: "mould-master",
-        component: MouldMaster,
-        beforeEnter: checkLogin
-    },
-    {
-        path: "/mould-create",
-        name: "mould-create",
-        component: MouldCreate,
-        beforeEnter: checkLogin
-    },
-    {
-        path: "/mould-modify",
-        name: "mould-modify",
-        component: MouldModify,
-        beforeEnter: checkLogin
-    },
-    {
-        path: "/mould-multicreate",
-        name: "mould-multicreate",
-        component: MouldMultiCreate,
-        beforeEnter: checkLogin
-    },
-    {
-        path: "/mould-history",
-        name: "mould-history",
-        component: MouldHistory,
+        component: () => import(/* webpackChunkName: "mould-master" */ "../views/Mould/MouldMaster.vue"),
         beforeEnter: checkLogin
     },
     {
         path: "/mould-detail",
         name: "mould-detail",
-        component: MouldDetail,
+        component: () => import(/* webpackChunkName: "mould-detail" */ "../views/Mould/MouldDetail.vue"),
+        beforeEnter: checkLogin
+    },
+    {
+        path: "/mould-create",
+        name: "mould-create",
+        component: () => import(/* webpackChunkName: "mould-create" */ "../views/Mould/MouldCreate.vue"),
+        beforeEnter: checkLogin
+    },
+    {
+        path: "/mould-modify",
+        name: "mould-modify",
+        component: () => import(/* webpackChunkName: "mould-modify" */ "../views/Mould/MouldModify.vue"),
+        beforeEnter: checkLogin
+    },
+    {
+        path: "/mould-multicreate",
+        name: "mould-multicreate",
+        component: () => import(/* webpackChunkName: "mould-multicreate" */ "../views/Mould/MouldMultiCreate.vue"),
+        beforeEnter: checkLogin
+    },
+    {
+        path: "/mould-history",
+        name: "mould-history",
+        component: () => import(/* webpackChunkName: "mould-history" */ "../views/Mould/MouldHistory.vue"),
         beforeEnter: checkLogin
     },
     {
@@ -178,12 +170,6 @@ const routes = [
         path: "/statusstone",
         name: "statusstone",
         component: () => import(/* webpackChunkName: "statusstone" */ "../views/Stone/statusstone.vue"),
-        beforeEnter: checkLogin
-    },
-    {
-        path: "/repairdoc-detail",
-        name: "repairdoc-detail",
-        component: RepairdocDetail,
         beforeEnter: checkLogin
     },
     {
@@ -226,8 +212,61 @@ const routes = [
     {
         path: "/purchase-edit",
         name: "purchase-edit",
-        component: () => import(/* webpackChunkName: "purchase-detail" */ "../views/Purchase-Request/Purchase_Edit.vue"),
+        component: () => import(/* webpackChunkName: "purchase-edit" */ "../views/Purchase-Request/Purchase_Edit.vue"),
         beforeEnter: checkLogin
+    },
+    {
+        path: "/purchase-edit-price",
+        name: "purchase-edit-price",
+        component: () => import(/* webpackChunkName: "purchase-edit-price" */ "../views/Purchase-Request/Purchase_Edit_Price.vue"),
+        beforeEnter: checkLogin
+    },
+    {
+        path: "/mpp-status",
+        name: "MPP_Status",
+        component: () => import(/* webpackChunkName: "MPP_Status" */ "../views/MPP/MPP_Status.vue"),
+        beforeEnter: checkLogin
+    },
+    {
+        path: "/mpp-orderStatus",
+        name: "MPP_OrderStatus",
+        component: () => import(/* webpackChunkName: "MPP_orderStatus" */ "../views/MPP/MPP_orderStatus.vue"),
+        beforeEnter: checkLogin
+    },
+    {
+        path: "/mpp-menuPage",
+        name: "MPP_MenuPage",
+        component: () => import(/* webpackChunkName: "MPP_menuPage" */ "../views/MPP/MPP_MenuPage.vue"),
+        beforeEnter: checkLogin
+    },
+    {
+        path: "/mpp-receivebill",
+        name: "MPP_ReceiveBill",
+        component: () => import(/* webpackChunkName: "MPP_receivebill" */ "../views/MPP/MPP_ReceiveBill.vue"),
+        beforeEnter: checkLogin
+    },
+    {
+        path: "/mpp-billmaterails",
+        name: "MPP_BillMaterails",
+        component: () => import(/* webpackChunkName: "MPP_billmaterails" */ "../views/MPP/MPP_BillMaterial.vue"),
+        beforeEnter: checkLogin
+    },
+    {
+        path: "/mpp-testinsertimg",
+        name: "mpp-testinsertimg",
+        component: () => import(/* webpackChunkName: "MPP_Status" */ "../views/MPP/MPP_TestInsertImg.vue"),
+        beforeEnter: checkLogin
+    },
+    {
+        path: "/rules",
+        name: "rules",
+        component: () => import(/* webpackChunkName: "rules" */ "../views/rules.vue"),
+        beforeEnter: checkLogin
+    },
+    {
+        path: "/resetpassword",
+        name: "resetpassword",
+        component: () => import(/* webpackChunkName: "resetpassword" */ "../views/resetpassword.vue"),
     },
     {
         path: "/",

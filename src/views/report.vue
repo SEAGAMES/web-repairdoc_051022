@@ -13,6 +13,7 @@
 <script>
 // import LineChart from "../components/charts/LineChart";
 import BarChart from "../components/charts/BarChart.vue";
+import api from "../services/api"
 
 export default {
   components: {
@@ -30,7 +31,8 @@ export default {
       
     };
   },
-  mounted() {
+  async mounted() {
+    this.$emit("isCheckLogin", !await api.isLoggedIn());
     this.loadData();
     this.fillData();
   },
@@ -43,7 +45,7 @@ export default {
           this.MonthChartReport.ItQty.push(item.ItQty);
           this.MonthChartReport.MaQty.push(item.MaQty);
       });
-      console.log(this.MonthChartReport);
+      // console.log(this.MonthChartReport);
 
     },
     async fillData() {

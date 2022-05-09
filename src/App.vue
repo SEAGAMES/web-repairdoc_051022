@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app >
     <Header v-if="$store.state.isLogged" />
     <Menu v-if="$store.state.isLogged" />
     <Content />
@@ -10,6 +10,8 @@
 import Header from "./components/core/Header";
 import Menu from "./components/core/Menu";
 import Content from "./components/core/Content";
+import moment from "moment";
+// import api from './services/api.js'
 
 export default {
   name: "App",
@@ -20,7 +22,17 @@ export default {
   },
   mounted() {
     this.$store.dispatch({ type: "restoreLogin" });
-    // console.log(process.env.API_HOST)
+    moment.locale("th");
+
+    setInterval(async () => {
+    
+      if(!this.$store.state.checkTimeout) {
+        this.$store.state.checkTimeout = true;
+        // console.log('ตั้งเวลาให้เป็นจริง')
+        // console.log(this.$store.state.checkTimeout)
+      }
+
+    }, 300000);
   },
   data: () => ({
     //
@@ -34,6 +46,12 @@ export default {
   font-style: normal
 }
 
+@font-face {
+  font-family: 'Sarabun';
+  src: url('./assets/Font/Sarabun/Sarabun-Regular.ttf') format('truetype');
+  font-style: normal
+}
+
 .fontPrompt {
   font-family: "Prompt", sans-serif;
 }
@@ -42,12 +60,19 @@ export default {
   font-family: "Prompt", sans-serif;
 }
 
+.fontSarabun {
+  font-family: "Sarabun", sans-serif;
+}
+
 
 
 .fontSize10 {
   font-size: 10px;
 }
 
+.fontSize11 {
+  font-size: 11px;
+}
 .fontSize12 {
   font-size: 12px;
 }
@@ -83,6 +108,15 @@ export default {
 .fontSize26{
   font-size: 26px;
 }
+
+.fontSize28{
+  font-size: 28px;
+}
+
+.fontSize30{
+  font-size: 30px;
+}
+
 
 
 

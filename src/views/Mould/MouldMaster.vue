@@ -1,5 +1,5 @@
 <template>
-  <v-container grid-list-xs class="fontPrompt">
+  <v-container grid-list-xs class="fontPrompt" v-if="!$store.state.loadingPage">
     <v-card >
       <v-data-table :search="search" :headers="headers" :items="mouldBill" :items-per-page="15"  multi-sort class="elevation-1 tableMould" max-width="3000">
         <template v-slot:top>
@@ -277,6 +277,9 @@
 <script>
 import apiMould from "../../services/apiMould";
 import MouldModify from "../Mould/MouldModify";
+import api from "../../services/api"
+
+
 export default {
   name: "mould-master",
   components: {
@@ -307,6 +310,9 @@ export default {
         status03: true,
         status04: true,
         status05: true,
+      },
+      dataFilter: {
+
       },
       checkBoxStatus2: [],
       showPopupChangeStatus: false,
@@ -360,7 +366,12 @@ export default {
     };
   },
   async mounted() {
+    this.$store.state.loadingPage = true;
     await this.loadData();
+    this.$emit("isCheckLogin", !await api.isLoggedIn());
+    setTimeout(() => {
+      this.$store.state.loadingPage = false;
+    }, 500);
   },
   methods: {
     async loadData() {

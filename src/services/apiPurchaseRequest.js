@@ -73,7 +73,7 @@ const getBillOrder = async (Bill_ID) => {
     sum = sum + Number(data2.PRICE);
   });
   result.data.push({
-    UNIT_NAME: "รวม",
+    UNIT_NAME: "รวมสุทธิ",
     PRICE: sum,
   });
   //console.log("result.data : " , result.data)
@@ -166,6 +166,14 @@ const updateNewItem = async (Bill_ID, index, datalist) => {
   return result;
 };
 
+//UPDATEPRICE
+const updatePrice = async (ItemID, Price) => {
+  let result = await httpClient.post(
+    `${serverPurchaseRequest.UPDATEPRICE}/${ItemID}/${Price}`
+  );
+  return result;
+};
+
 //DELETEFROMEDIT
 const deleteFromEdit = async (bill_id , item_no) => {
   //console.log("bill_id หน้า API : " , bill_id)
@@ -195,6 +203,15 @@ const deleteBillDetail = async (bill_id) => {
   return result.data.result;
 };
 
+// ส่ง empCode เพื่อไปเช็คว่ามีสินค้าพร้อมรับอยู่ไหม(status code 4) 
+const StatusWarning = async (empCode) => {
+  const result = await httpClient.get(
+    `${serverPurchaseRequest.STATUSWARNING}/${empCode}`
+  );
+  // console.log('result : ' , result.data)
+  return result.data;
+};
+
 export default {
   getInvetoryFull,
   getItemType,
@@ -210,8 +227,10 @@ export default {
   updateInspactor,
   updateBillDetail,
   updateNewItem,
+  updatePrice,
   deleteFromEdit,
   deleteBillDetail,
   getPosition,
-  getItemsName
+  getItemsName,
+  StatusWarning
 };

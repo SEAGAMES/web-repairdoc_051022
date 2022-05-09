@@ -33,7 +33,7 @@
             }}</span>
           </span>
           <br />
-          <!-- --------------------------------------------------------->
+         
 
           <span>
             <b> เบอร์ภายใน : </b>
@@ -67,7 +67,7 @@
                   <th class="text-center" width="150">Remark</th>
                   <th class="text-center" width="80">จำนวน</th>
                   <th class="text-center" width="100">หน่วย</th>
-                  <th class="text-center" width="80">ราคา(บ.)</th>
+                  <th class="text-center" width="80">ราคารวม(บ.)</th>
                 </tr>
               </thead>
               <tbody>
@@ -87,9 +87,9 @@
                   <td v-if="index + 1 >= billOrder.length">
                     <h3>{{ item.UNIT_NAME }}</h3>
                   </td>
-                  <td v-if="index + 1 < billOrder.length">{{ item.PRICE }}</td>
+                  <td v-if="index + 1 < billOrder.length">{{ Number(item.PRICE).toLocaleString() }}</td>
                   <td v-if="index + 1 >= billOrder.length">
-                    <h3>{{ item.PRICE.toLocaleString() }}</h3>
+                    <h3>{{ Number(item.PRICE).toLocaleString() }}</h3>
                   </td>
                 </tr>
               </tbody>
@@ -311,7 +311,7 @@ export default {
       );
 
       var rows = [];
-      rows.push(["ลำดับ", "รหัสสินค้า", "รายการ", "จำนวน", "หน่วย", "ราคา"]);
+      rows.push(["ลำดับ", "รหัสสินค้า", "รายการ", "จำนวน", "หน่วย", "ราคารวม"]);
       //console.log("this.dataMaster : ", this.dataMaster);
       this.billOrder.forEach((data, index) => {
         var x = data.ITEM_NAME;
@@ -341,11 +341,12 @@ export default {
           data.ITEM_NAME,
           data.ITEM_Qty,
           data.UNIT_NAME,
-          data.PRICE.toLocaleString(),
+          Number(data.PRICE).toLocaleString(),
         ]);
       });
 
       const docDefinition = {
+        pageSize: "A4",
         content: [
           {
             columns: [
@@ -420,7 +421,7 @@ export default {
           {
             width: "*",
             table: {
-              widths: ["*", 130, 200, "*", "*", "*"],
+              widths: [30, 100, 200, 35, 45, 80],
               body: rows,
             },
           },
@@ -471,7 +472,7 @@ export default {
       );
 
       var rows = [];
-      rows.push(["ลำดับ", "รหัสสินค้า", "รายการ", "จำนวน", "หน่วย", "ราคา"]);
+      rows.push(["ลำดับ", "รหัสสินค้า", "รายการ", "จำนวน", "หน่วย", "ราคารวม"]);
       // console.log("this.dataMaster : ", this.dataMaster);
       this.billOrder.forEach((data, index) => {
         var x = data.ITEM_NAME;
@@ -503,7 +504,7 @@ export default {
           data.ITEM_NAME,
           data.ITEM_Qty,
           data.UNIT_NAME,
-          data.PRICE.toLocaleString(),
+          Number(data.PRICE).toLocaleString(),
         ]);
       });
 
@@ -518,6 +519,7 @@ export default {
    
 
       const docDefinition = {
+        pageSize : A4 ,
         content: [
           {
             columns: [
@@ -589,7 +591,7 @@ export default {
           {
             width: "*",
             table: {
-              widths: ["*", 130, 200, "*", "*", "*"],
+              widths: [30, 100, 200, 35, 45, 80],
               body: rows,
             },
           },
@@ -656,7 +658,7 @@ export default {
     },
     async convertImg(Url) {
       const result = await apiRepairDoc.convertImg(Url);
-      return `data:image/jpeg;base64,${result}`;
+      return result;
     },
   },
 };

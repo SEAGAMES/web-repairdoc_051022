@@ -1,21 +1,24 @@
 <script>
-import { Line, mixins } from 'vue-chartjs'
-const { reactiveProp } = mixins
+import { Line, mixins } from "vue-chartjs";
+const { reactiveProp } = mixins;
 export default {
   extends: Line,
-  mixins : [reactiveProp],
+  mixins: [reactiveProp],
   props: ["chartData"],
   data() {
     return {
       options: {
         //ล็อคความสูงของ Chart
         responsive: true,
-        maintainAspectRatio: false
-      }
-    }
+        maintainAspectRatio: false,
+        legend: {
+          display: false,
+        },
+      },
+    };
   },
-  mounted () {
-    this.renderChart(this.$store.getters.dataChartShow, this.options)
-  }
-}
+  mounted() {
+    this.renderChart(this.chartData, this.options);
+  },
+};
 </script>

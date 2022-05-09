@@ -1,5 +1,5 @@
 <template>
-  <v-container class="fontPrompt">
+  <v-container class="fontPrompt" v-if="!$store.state.loadingPage">
     <v-row class="justify-center ">
       <v-col cols="8">
         <v-card class="pa-5" outlined>
@@ -107,6 +107,7 @@
                   label="วันที่ต้องการให้เสร็จ"
                   required
                   outlined
+                  :disabled=" $store.getters.policyCode !== '03' "
                 />
               </v-col>
 
@@ -150,7 +151,7 @@
             <v-row class="pt-10">
               <v-spacer></v-spacer>
               <v-btn class="mr-4" @click="cancel">Cancel</v-btn>
-              <v-btn color="success" type="submit">Confirm</v-btn>
+              <v-btn color="success" type="submit" :loading="submitLoading">Confirm</v-btn>
             </v-row>
           </v-form>
           <!-- <span>{{product}}</span> -->
@@ -167,6 +168,7 @@ export default {
   name: "repairdoc-create",
   data() {
     return {
+      submitLoading: false,
       disableCate: true,
       disableRoom: true,
       showDevice: false,
@@ -226,8 +228,12 @@ export default {
     };
   },
   async mounted() {
+    this.$store.state.loadingPage = true;
     await this.loadForm();
     // console.log(this.deviceFilter);
+    setTimeout(() => {
+      this.$store.state.loadingPage = false;
+    }, 100);
   },
   methods: {
     async loadForm() {
@@ -240,7 +246,8 @@ export default {
       this.deviceFilter = this.$store.getters.DeviceFilter;
     },
     async submit() {
-      console.log(this.createData)
+      this.submitLoading = true;
+      // console.log(this.createData)
       const checkdata = this.checkformData();
       if (checkdata) {
         const result = await apiRepairDoc.createRepairDoc(this.createData)
@@ -255,6 +262,7 @@ export default {
           (this.error = []);
           this.createData = this.createData2;   
           await this.$router.push('/repairdoc-master');
+          this.submitLoading = false;
         } else {
           await this.$swal({
             title: "Error",
@@ -263,7 +271,10 @@ export default {
             showConfirmButton: false,
             timer: 1500,
           });
+          this.submitLoading = false;
         }
+      } else {
+        this.submitLoading = false;
       }
     },
     cancel() {
@@ -286,6 +297,7 @@ export default {
       }
     },
     filterRoom(FloorCode) {
+      this.createData.RoomCode = null;
       this.room = this.$store.getters.formDeviceRoom;
       this.room = this.room.filter((r) => {
         return r.FloorCode == FloorCode;
@@ -296,13 +308,14 @@ export default {
       // console.log(checkEnable);
       this.showDevice = true
       // console.log(this.createData);
+      this.createData.DeviceNo = null
       if(this.createData.CategoryCode === 'A6' ||
          this.createData.CategoryCode === 'A5' ||
          this.createData.CategoryCode === 'B1' ||
          this.createData.CategoryCode === 'B2' ||
          this.createData.CategoryCode === 'B99'
       ) {
-        this.createData.DeviceNo = null
+        // this.createData.DeviceNo = null
         this.showDevice = false
       }
       if (checkEnable === 0) {
@@ -369,11 +382,11 @@ export default {
         this.error.push("โปรดระบุอาการเสีย");
       }
       if (!this.createData.DeviceNo) {
-        if(this.createData.CategoryCode !== 'A6' ||
-          this.createData.CategoryCode !== 'A5' ||
-           this.createData.CategoryCode !== 'B1' ||
-           this.createData.CategoryCode !== 'B2' ||
-           this.createData.CategoryCode !== 'B99') {
+        if(this.createData.CategoryCode === 'A6' ||
+              this.createData.CategoryCode === 'A5' ||
+              this.createData.CategoryCode === 'B1' ||
+              this.createData.CategoryCode === 'B2' ||
+              this.createData.CategoryCode === 'B99') {
               this.error.push("โปรดระบุเลขที่เครื่อง");
             }
       }
@@ -382,7 +395,7 @@ export default {
       }
     },
     checkconsole() {
-      console.log(this.createData)
+      // console.log(this.createData)
     }
   },
 };
@@ -393,8 +406,3 @@ export default {
 <style>
 </style>
 
-
-    {
-        "ID": number,
-        "DocID": string,
-    },

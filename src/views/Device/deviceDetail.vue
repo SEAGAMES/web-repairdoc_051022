@@ -285,6 +285,7 @@ export default {
     };
   },
   async mounted() {
+    console.log(444);
     await this.loadForm();
     await this.loadDataDevice();
     await this.loadRepairDetail();

@@ -2,8 +2,9 @@ import httpClient from './httpClient'
 import { server, serverOrderStatus } from './constants'
 
 
-const getOrderStatus = async() => {
-    const result = await httpClient.get(serverOrderStatus.getOrderStatus)
+const getOrderStatus = async(data) => {
+    // console.log(data);
+    const result = await httpClient.post(serverOrderStatus.getOrderStatus, data)
     // console.log(result.data)
     return result.data
 }
@@ -52,41 +53,15 @@ const getWeightDiffGold = async()=> {
     return result.data
 }
 
-const test = [
-    {
-        Purchase_Bill_ID: 1,
-        BillID: 1,
-        PurChaseDate: new Date(),
-        Owner: '1372',
-        Detail: [
-            {
-                itemNo: 1,
-                ProductID: '123',
-                Qty: 100
-            },
-            {
-                itemNo: 2,
-                ProductID: '123',
-                Qty: 100
-            },
-            {
-                itemNo: 3,
-                ProductID: '123',
-                Qty: 100
-            },
-            {
-                itemNo: 4,
-                ProductID: '123',
-                Qty: 100
-            },
-            {
-                itemNo: 5,
-                ProductID: '123',
-                Qty: 100
-            },
-        ]
-    }
-]
+const getDataLineChartQA = async(pdTeam) => {
+    const data = {
+        pdTeam: pdTeam
+    };
+    const result = await httpClient.post(serverOrderStatus.GETDATALINECHART ,data);
+    return result.data
+};
+
+
 
 export default {
     getOrderStatus,
@@ -95,5 +70,6 @@ export default {
     getProduct,
     getStoneProduct,
     getdetailStatus,
-    getWeightDiffGold
+    getWeightDiffGold,
+    getDataLineChartQA
 }

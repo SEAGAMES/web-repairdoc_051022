@@ -60,7 +60,7 @@ const updateRepairDoc = async (id, data) => {
 
 const updateStatus = async (data) => {
   // data.Notifier = this.$store.state.
-  console.log("back", data);
+  // console.log("back", data);
   if (data.status == "3") {
     let dataFinishUpdate = {
       ID: data.BillID,
@@ -92,9 +92,14 @@ const getHistoryBill = async (DeviceNo) => {
 }
 
 const convertImg = async(data) => {
-  console.log('Backend', data)
+  // console.log('Backend', data)
   const result = await axios.post(apiConvertImg, { UrlIMG : data});
-  return result.data.result;
+  return `data:image/jpeg;base64,${result.data.result}`;
+}
+
+const getFilterRepairDate = async(data) => {
+  const result = await httpClient.post(serverRepairDoc.GETFILTERREPAIRDATE, data)
+  return result.data
 }
 
 export default {
@@ -109,5 +114,6 @@ export default {
   updateApprove,
   getBillRepairDetail,
   getHistoryBill,
-  convertImg
+  convertImg,
+  getFilterRepairDate
 };

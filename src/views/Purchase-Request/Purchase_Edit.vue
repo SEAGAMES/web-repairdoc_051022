@@ -73,7 +73,7 @@
                 <v-data-table
                   :headers="headers2"
                   :items="dataSelect"
-                  :items-per-page="15"
+                  :items-per-page="30"
                 >
                   <template v-slot:item="{ item, index }">
                     <tr>
@@ -97,7 +97,7 @@
                         ></v-text-field>
                       </td>
                       <td>{{ item.UNIT_NAME }}</td>
-                      <td width="70">
+                      <td width="100">
                         <v-text-field
                           align-center
                           v-model="item.PRICE"

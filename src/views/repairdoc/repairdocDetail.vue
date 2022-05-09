@@ -673,7 +673,7 @@ export default {
     },
     async convertImg(Url) {
       const result = await apiRepairDoc.convertImg(Url);
-      return `data:image/jpeg;base64,${result}`;
+      return result;
     },
   },
 };

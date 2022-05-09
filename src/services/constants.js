@@ -3,7 +3,8 @@ export const NETWORK_TIMEOUT_MESSAGE = "A Network timeout has occururd, Please t
 export const UPLOAD_PHOTO_FAIL_MESSAGE = "An error has occurred. The photo was unable to upload";
 export const NOT_CONNECT_NETWORK = "NOT_CONNECT_NETWORK";
 
-export const apiUrl = "http://192.168.3.7:3000/api/v2"
+// export const apiUrl = "http://192.168.3.7:60009/api/v2"
+export const apiUrl = "http://172.16.0.12:60009/api/v2"
 export const apiConvertImg = "http://192.168.3.5:3000/convertImg"
 
 export const server = {
@@ -19,7 +20,15 @@ export const server = {
     PolicyName: 'policyname',
     EmpPict: 'EmpPict',
     FACTORY: 'Factory',
-    APPOVE: 'Appove'
+    APPOVE: 'Appove',
+    CHECKTOKEN: 'checktoken',
+    GETCHECKPASSWORD:'checkPassword',
+    UPDATEPASSWORD: 'updatepassword',
+
+    // GAME 
+    QUEUPDATE: 'QueUpdate',
+    STATUSUPDATE: 'StatusUpdate',
+    REVISEMOLDSTATUS: 'ReviseMoldStatus',
 };
 
 export const serverDevice = {
@@ -47,7 +56,8 @@ export const serverRepairDoc = {
     GETSUMBILL: 'getSumBill',
     UPDATEFINISHDATE: 'updatefinishdate',
     UPDATEAPPROVE: 'updateapprove',
-    GETHISTORYBILL: 'gethistorybillrepair'
+    GETHISTORYBILL: 'gethistorybillrepair',
+    GETFILTERREPAIRDATE: 'filterRepairDate'
 }
 
 export const serverReport = {
@@ -86,7 +96,8 @@ export const serverOrderStatus = {
     GETPRODUCTBYORDER: 'getproductbyorder',
     GETSTONEPRODUCT: 'getstoneproduct',
     GETORDERDETAILSTATUS: 'getorderdetailstatus',
-    GETWIGHTDIFFGOLD: 'reportworkerweightgold'
+    GETWIGHTDIFFGOLD: 'reportworkerweightgold',
+    GETDATALINECHART:'getdataLineChartQA'
 }
 
 export const serverStone = {
@@ -116,10 +127,39 @@ export const serverPurchaseRequest = {
     UPDATEINSPACTOR : 'updateInspactor',
     UPDATEBILLDETAIL : 'updateBill_Detail',
     UPDATENEWITEM : 'updateNewItem',
+    UPDATEPRICE : 'updatePrice',
     DELETEFROMEDIT : 'deleteFromEdit',
     DELETEBILLDETAIL : 'deleteBillDetail',
     GETPURCHASEPOSITION : 'getPurchasePosition',
-    GETITEMSNAME : 'getItemsName'
+    GETITEMSNAME : 'getItemsName',
+    STATUSWARNING : 'StatusWarning'
 }
+
+// Update 12/1/2565
+export const serverMpp = {
+    GETMPPSTATUS: 'mpp-getstatus',
+    GETSTONEBYITEM: 'mpp-getstonebyitem',
+    UPDATEPIORITY:'mpp-update-piority',
+    GETMOLDSTATUS: 'mpp-getmoldstatus',
+    GETFILTERDATE:'mpp-getFilterDate',
+    GETPARTSBYITEM: 'mpp-getpartbyitem',
+    GETFILTERSTATUSSTONE: 'mpp-filterStatusStone',
+    GETFILTERSTONEWAXSET: 'mpp-getfilterstonewaxset',
+    GETFILTERDATESTONEWAXSET: 'mpp-getfilterdatestonewaxset',
+    GETFILTERDATESTONENONWAXSET: 'mpp-getfilterdatestonenonwaxset',
+    GETFILTERDATEPEARL: 'mpp-getfilterdatepearl',
+    GETQUEFORFILTER: 'mpp-getqueforfilter',
+    GETHISTORYDUE: 'mpp-PurchaseStatusHistory',
+    GETPURCHASEDETAIL: 'mpp-viewpurchasedetail',
+    GETBILLFORRECEIVE: 'mpp-getbillreceive',
+    CONFIRMBILLRECEIVE: 'mpp-confirmReceiveBill',
+    GETBILLMATERAILS :'mpp-billmaterails',
+    CHECKINPROGRAM: 'mpp-checkinProgram',
+    // GAME 
+    CREATESTATUSHISTORY : 'createStatusHistory',
+    GETHISTORYSTATUSMOLD : 'getHistoryStatusMold',
+}
+
+
 
 

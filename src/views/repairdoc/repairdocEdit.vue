@@ -1,5 +1,5 @@
 <template>
-  <v-container class="fontPrompt">
+  <v-container class="fontPrompt" v-if="showPage">
     <v-row class="justify-center ">
       <v-col cols="12">
         <v-card class="pa-5" outlined>
@@ -104,6 +104,7 @@
                   label="วันที่ต้องการให้เสร็จ"
                   required
                   outlined
+                  :disabled=" $store.getters.policyCode !== '03'"
                 />
               </v-col>
 
@@ -164,6 +165,8 @@ export default {
   name: "repairdoc-create",
   data() {
     return {
+      showPage: false,
+      submitLoading: false,
       disableCate: true,
       disableRoom: true,
       showDevice: false,
@@ -223,9 +226,12 @@ export default {
     };
   },
   async mounted() {
+    this.showPage = false;
     await this.loadForm();
-    console.log(this.$store.state.repairModify.disableInput.showDevice);
-    
+    setTimeout(() => {
+      this.showPage = true;
+    }, 200);
+    // console.log(this.$store.state.repairModify.disableInput.showDevice);
   },
   methods: {
      async loadForm() {
@@ -246,13 +252,6 @@ export default {
         const result = await apiRepairDoc.updateRepairDoc(this.$store.getters.BillRepairModify, this.createData)
         // alert('ผ่าน')
         if (result == "ok") {
-          await this.$swal({
-            title: "Modify Success",
-            icon: "success",
-            text: "Your work has been saved",
-            showConfirmButton: false,
-            timer: 1500,
-          });
           (this.error = []);
           this.createData = this.createData2;   
           this.$store.state.repairModify.dataRepair = {}
@@ -261,13 +260,7 @@ export default {
           this.$emit('closePageModify', true);
           // this.$store.state.repairModify.showPopupRepairModify = false;
         } else {
-          await this.$swal({
-            title: "Error",
-            icon: "error",
-            text: "Cannot be saved",
-            showConfirmButton: false,
-            timer: 1500,
-          });
+          this.$emit('closePageModify', false);
         }
       }
     },
@@ -387,7 +380,7 @@ export default {
       }
     },
     checkconsole() {
-      console.log(this.$store.getters.DataRepairModify)
+      // console.log(this.$store.getters.DataRepairModify)
     }
   },
 };

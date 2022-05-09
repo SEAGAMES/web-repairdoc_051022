@@ -1,5 +1,6 @@
 <template>
   <v-container grid-list-xs>
+    
     <!-- loading -->
     <v-row v-if="spinner" class="mt-16">
       <v-spacer></v-spacer>
@@ -122,6 +123,7 @@
         </v-card>
       </v-col>
     </v-row>
+
   </v-container>
 </template>
 

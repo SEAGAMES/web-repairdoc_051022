@@ -77,13 +77,19 @@
                 ({{ item.Request_NickName }}) ({{ item.Request_ID }})
               </td>
               <td @click="gotoDetail(item, index)" align="center" width="250">
-                <div v-for="data, index in item.MiniList" :key="index" class="mb-2">
-                 • {{ data.ITEM_NAME }}
+                <div
+                  v-for="(data, index) in item.MiniList"
+                  :key="index"
+                  class="mb-2"
+                >
+                  • {{ data.ITEM_NAME }}
                 </div>
               </td>
               <td @click="gotoDetail(item, index)" align="center">
-                {{ item.Bill_Date | moment("L") }} <br>
-                <span class="grey--text">(เวลา {{ item.Bill_Date | moment("LT") }} น.)</span>
+                {{ item.Bill_Date | moment("L") }} <br />
+                <span class="grey--text"
+                  >(เวลา {{ item.Bill_Date | moment("LT") }} น.)</span
+                >
                 <!-- {{ DateShow(item.Bill_Date) }} -->
               </td>
 
@@ -219,6 +225,29 @@
             </v-card>
           </v-form>
         </v-dialog>
+
+        <!-- snackbarUpdate คิว -->
+        <div class="text-center ma-2">
+          <v-snackbar
+            v-model="snackBarWerning"
+            top
+            width="1000"
+            align="center"
+            :timeout="7000"
+          >
+            <div class="fontSarabun fontSize16 text-center">
+              หากรับสินค้าไปเเล้ว กรุณากดรับสินค้าด้วยค่ะ
+              <v-icon small class="ml-1" color="yellow"
+                >mdi-shield-check</v-icon
+              >
+              <br />
+              <br />
+              <v-btn elevation="2" color="success" @click="linkToBill()"
+                >กดรับสินค้า</v-btn
+              >
+            </div>
+          </v-snackbar>
+        </div>
       </v-card>
     </v-col>
   </v-container>
@@ -227,6 +256,7 @@
 <script>
 import apiPurchaseRequest from "../../services/apiPurchaseRequest";
 import moment from "moment";
+import api from "../../services/api";
 
 export default {
   data() {
@@ -238,11 +268,12 @@ export default {
       SectionFilter: [],
       changeStatusShowPop: false,
       confirmDeleteDlg: false,
+      snackBarWerning: false,
       deleteID: 0,
       index: [],
       DataStatuschange: [],
       statusChange: [],
-      ItemsName:[],
+      ItemsName: [],
       headers: [
         {
           text: "เลขที่บิล",
@@ -354,23 +385,31 @@ export default {
     };
   },
   async mounted() {
+    this.$emit("isCheckLogin", !(await api.isLoggedIn()));
     moment.locale("th");
     await this.getBillMaster();
     await this.getSection();
-
-
     await this.getItemsName();
-    // const BackupItemName = await this.getItemsName();
-    // this.getPurchaseBillMaster2 = this.getPurchaseBillMaster;
-    // this.getPurchaseBillMaster2.forEach((data, index) => {
-    //   // this.getPurchaseBillMaster3 = this.getPurchaseBillMaster2
-    //   this.getPurchaseBillMaster2[index].MiniList = BackupItemName.filter((dataFilter, index) => {
-    //     return dataFilter.Purchase_Bill_ID === data.Purchase_Bill_ID
-    //   })
-    // });
-    
+    await this.getWarningStatus(this.$store.getters.username);
+    // console.log(this.$store.getters.username);
   },
   methods: {
+    async getWarningStatus(empCode) {
+      this.warningStatus = await apiPurchaseRequest.StatusWarning(empCode);
+      // console.log('result : ' , this.warningStatus)
+      if (this.warningStatus > 0) {
+        this.snackBarWerning = true;
+      } else {
+        this.snackBarWerning = false;
+      }
+    },
+
+    // เมื่อกดจะพาไปที่บิลที่พร้อมรับของ
+    async linkToBill() {
+      this.search = this.$store.getters.username;
+      this.snackBarWerning = false;
+    },
+
     async getBillMaster() {
       this.getPurchaseBillMaster = await apiPurchaseRequest.getBillMaster();
     },
@@ -379,14 +418,16 @@ export default {
     },
     //getItemsName
     async getItemsName() {
-    const BackupItemName = await apiPurchaseRequest.getItemsName();
-    this.getPurchaseBillMaster2 = this.getPurchaseBillMaster;
-    this.getPurchaseBillMaster2.forEach((data, index) => {
-      // this.getPurchaseBillMaster3 = this.getPurchaseBillMaster2
-      this.getPurchaseBillMaster2[index].MiniList = BackupItemName.filter((dataFilter, index) => {
-        return dataFilter.Purchase_Bill_ID === data.Purchase_Bill_ID
-      })
-    });
+      const BackupItemName = await apiPurchaseRequest.getItemsName();
+      this.getPurchaseBillMaster2 = this.getPurchaseBillMaster;
+      this.getPurchaseBillMaster2.forEach((data, index) => {
+        // this.getPurchaseBillMaster3 = this.getPurchaseBillMaster2
+        this.getPurchaseBillMaster2[index].MiniList = BackupItemName.filter(
+          (dataFilter, index) => {
+            return dataFilter.Purchase_Bill_ID === data.Purchase_Bill_ID;
+          }
+        );
+      });
       // this.ItemsName = await apiPurchaseRequest.getItemsName();
       // console.log(this.ItemsName);
       // return await apiPurchaseRequest.getItemsName();
@@ -408,23 +449,23 @@ export default {
     async gotoPurchaseCreate() {
       // console.log(this.getPurchaseBillMaster)
       let checkState4 = this.getPurchaseBillMaster.filter((dataFilter) => {
-        return dataFilter.Request_ID === this.$store.state.username && dataFilter.Status_Code === '4'
-      })
+        return (
+          dataFilter.Request_ID === this.$store.state.username &&
+          dataFilter.Status_Code === "4"
+        );
+      });
       // console.log(checkState4);
-      if(checkState4.length > 0) {
-         await this.$swal({
-            title: "กรุณากดรับสินค้าของบิลเก่าก่อนครับ",
-            icon: "error",
-            text: "ไม่อนุญาตให้สร้างบิล !!",
-            showConfirmButton: false,
-            timer: 5000,
-          });
+      if (checkState4.length > 0) {
+        await this.$swal({
+          title: "กรุณากดรับสินค้าของบิลเก่าก่อนครับ",
+          icon: "error",
+          text: "ไม่อนุญาตให้สร้างบิล !!",
+          showConfirmButton: false,
+          timer: 5000,
+        });
       } else {
         await this.$router.push("/purchase-request").catch(() => {});
       }
-
-
-      
     },
     //filterBySection
     filterBySection(section_code) {
@@ -441,10 +482,16 @@ export default {
     changeStatus2(item, index) {
       //console.log("item : ", item);
       this.statusShow = this.statusShow2;
-      if (this.$store.getters.policyCode === "03" || this.$store.getters.policyCode === "08") {
+      if (
+        this.$store.getters.policyCode === "03" ||
+        this.$store.getters.policyCode === "08"
+      ) {
         //ถ้าเป็นพี่จี ให้กดเปลี่ยนสถานะได้แต่เปลี่ยนสถานะเสร็จแล้วไม่ได้
-        if (item.Status_Code !== "5" && this.$store.getters.policyCode === "08") {
-            // this.statusShow = this.statusShow2;
+        if (
+          item.Status_Code !== "5" &&
+          this.$store.getters.policyCode === "08"
+        ) {
+          // this.statusShow = this.statusShow2;
           if (item.Status_Code === "1") {
             this.changeStatusShowPop = true;
             this.DataStatuschange.Status_Code = item.Status_Code;
@@ -482,7 +529,10 @@ export default {
           // console.log('DataStatuschange.Purchase_Bill_ID : ' ,this.DataStatuschange.Purchase_Bill_ID)
         }
       }
-      if (this.$store.state.username === item.Request_ID && item.Status_Code === "4") {
+      if (
+        this.$store.state.username === item.Request_ID &&
+        item.Status_Code === "4"
+      ) {
         //console.log("ตัวเองจะกดรับสินค้าเเล้ว");
         this.changeStatusShowPop = true;
         this.DataStatuschange.Status_Code = "5";
@@ -498,7 +548,9 @@ export default {
       const dateParse = new Date(date);
       // const TestDate = new Date();
       // console.log(`${moment(dateParse).add(543, "year").format("L")} <br>(${moment(dateParse).format("LT")} น.)`)
-      return `${moment(dateParse).add(543, "year").format("L")} (${moment(dateParse).format("LT")} น.)`;
+      return `${moment(dateParse)
+        .add(543, "year")
+        .format("L")} (${moment(dateParse).format("LT")} น.)`;
 
       // return `${moment.utc(dateParse).add(543, "year").format("L")} (${moment.utc(dateParse).add(543, "year").format("LT")} น.)`;
     },
@@ -638,23 +690,40 @@ export default {
       }
     },
     async confirmDelete(id) {
-      //console.log("มาถึง confirmDelete id คือ : ", id);
       const result = await apiPurchaseRequest.deletePuechaseAllBill(id);
+      if (result == "ok") {
+        await this.$swal({
+          title: "Update Success",
+          icon: "success",
+          text: "Your work has been saved",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        await this.getBillMaster();
+        this.getPurchaseBillMaster2 = this.getPurchaseBillMaster;
+        this.changeStatusShowPop = false;
+      } else {
+        await this.$swal({
+          title: "Error",
+          icon: "error",
+          text: "Cannot be saved",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
     },
     async updateStatus_Code(Status_Code, bill_ID) {
-      //console.log("statusCode2 : " , Status_Code)
-      //console.log("Bill_ID2 : " , bill_ID)
       const result = await apiPurchaseRequest.updateStatus(
         Status_Code,
         bill_ID
       );
-      //console.log(result);
     },
 
     cancelSort() {
       this.getPurchaseBillMaster2 = this.getPurchaseBillMaster;
       this.statusShow.id = null;
       this.SectionSelect.SectionCode = null;
+      this.search = null;
     },
     async confirmChangeStatus() {
       //console.log("มาถึง confirmChangeStatus")

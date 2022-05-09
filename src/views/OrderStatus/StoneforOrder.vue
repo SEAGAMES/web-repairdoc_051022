@@ -25,8 +25,8 @@
                   </th>
                   <th class="text-left fontSize14"><h3>รหัสพลอย</h3></th>
                   <th class="text-center" width="30">จำนวนที่สั่ง</th>
-                  <th class="text-center" width="800">ขั้นตอน</th>
-                  <th class="text-center" width="100">คงค้าง</th>
+                  <!-- <th class="text-center" width="800">ขั้นตอน</th>
+                  <th class="text-center" width="100">คงค้าง</th> -->
                 </tr>
               </thead>
               <tbody>
@@ -59,7 +59,7 @@
                   </td>
 
                   <!-- STEP -->
-                  <td width="600">
+                  <!-- <td width="600">
                     <v-stepper
                       v-model="stone.timeLine"
                       alt-labels
@@ -108,13 +108,13 @@
                     </v-stepper>
                   
                   
-                  </td>
+                  </td> -->
                       
-                  <td width="100">
+                  <!-- <td width="100">
                     <div class="fontSize14">
                       <b>100</b> pcs.
                     </div>
-                  </td>
+                  </td> -->
                 </tr>
               </tbody>
             </template>
@@ -133,8 +133,8 @@
                   <th class="text-center">จำนวนชิ้นงาน</th>
                   <th class="text-left" width="200">พลอยที่ใช้</th>
                   <th class="text-left" width="80">จำนวนที่ใช้</th>
-                  <th class="text-left" width="80">พลอยคงค้าง</th>
-                  <th class="text-center" width="80">สถานะ</th>
+                  <!-- <th class="text-left" width="80">พลอยคงค้าง</th>
+                  <th class="text-center" width="80">สถานะ</th> -->
 
                 </tr>
               </thead>
@@ -180,7 +180,7 @@
                   </td>
 
                   <!-- จำนวนคงค้าง -->
-                   <td align="left" justify="center"  width="80">
+                   <!-- <td align="left" justify="center"  width="80">
                     <v-row
                       v-for="(i, index2) in product.stone"
                       :key="index2"
@@ -188,9 +188,9 @@
                       <div class="mt-2 mb-3 red--text " v-if="i.Random === 1">0</div>
                       <div class="mt-2 mb-3 red--text " v-if="i.Random === 0">5</div>
                     </v-row>
-                  </td>
+                  </td> -->
 
-                   <td align="left" justify="center"  width="80" >
+                   <!-- <td align="left" justify="center"  width="80" >
                     <v-row
                       v-for="(i, index2) in product.stone"
                       :key="index2"
@@ -198,7 +198,7 @@
                       <v-btn color="success" small v-if="i.Random === 1" class="mb-2 mt-1" width="70">ครบแล้ว</v-btn>
                       <v-btn color="red" small v-if="i.Random === 0" dark class="mb-2 mt-1" width="70">ยังไม่ครบ</v-btn>
                     </v-row>
-                  </td>
+                  </td> -->
 
 
 
@@ -242,7 +242,8 @@ export default {
       const result = await apiOrder.getStoneByOrder(
         this.$store.getters.statusDetailHeader.OrderNumber
       );
-      //   console.log('page', result)
+      console.log(this.$store.getters.statusDetailHeader.OrderNumber)
+        console.log('page', result)
       this.dataStoneByOrder = result;
       this.dataStoneByOrder2 = result;
       this.dataStoneByOrder2.forEach((data, index) => {

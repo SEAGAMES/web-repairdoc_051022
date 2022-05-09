@@ -1,61 +1,5 @@
 <template>
-  <v-container class="fontPrompt">
-    <!-- หน้าเลือกแผนก -->
-    <!-- <v-row class="mt-10" v-if="!$store.state.deviceMaster.ShowTable">
-
-      <v-col lg="6" md="6" sm="12" align="center" justify="center">
-        <v-card
-          id="stock_card"
-          height="200"
-          width="500"
-          @click="selectDepartment('02')"
-
-        >
-          <v-img src="../../assets/city.jpg" height="80" width="500"></v-img>
-          <v-list-item two-line>
-            <v-list-item-content>
-              <v-list-item-title class="headline; mb-1; fontPrompt" align="left">{{
-                ma.title
-              }}</v-list-item-title>
-              <v-list-item-subtitle class="title; fontPrompt" align="left">{{
-                ma.subtitle
-              }}</v-list-item-subtitle>
-            </v-list-item-content>
-
-            <v-list-item-avatar tile size="80" :color="ma.avatar_bg">
-              <v-icon color="white"> {{ ma.avatar_ic }} </v-icon>
-            </v-list-item-avatar>
-          </v-list-item>
-        </v-card>
-      </v-col>
-
-      <v-col lg="6" md="6" sm="12" align="center" justify="center">
-        <v-card
-          id="stock_card"
-          height="200"
-          width="500"
-          @click="selectDepartment('01')"
-          
-        >
-          <v-img src="../../assets/space.jpg" height="80" width="500"></v-img>
-          <v-list-item two-line>
-            <v-list-item-content>
-              <v-list-item-title class="headline; mb-1; fontPrompt" align="left">{{
-                it.title
-              }}</v-list-item-title>
-              <v-list-item-subtitle class="title; fontPrompt" align="left">{{
-                it.subtitle
-              }}</v-list-item-subtitle>
-            </v-list-item-content>
-
-            <v-list-item-avatar tile size="80" :color="it.avatar_bg">
-              <v-icon color="white"> {{ it.avatar_ic }} </v-icon>
-            </v-list-item-avatar>
-          </v-list-item>
-        </v-card>
-      </v-col>
-    </v-row> -->
-
+  <v-container class="fontPrompt" v-if="!$store.state.loadingPage">
     <!-- Table Section -->
     <v-card >
       <v-data-table :search="search" :headers="headers" :items="dataDevice" :items-per-page="15"  class="tableDevice">
@@ -226,9 +170,12 @@ export default {
     DeviceModify,
   },
   async mounted() {
+    this.$store.state.loadingPage = true;
       await this.loadData();
       this.checkDepart();
-      // console.log('นี้คือdata', this.$store.getters.DataDeviceMaster);
+      setTimeout(() => {
+      this.$store.state.loadingPage = false;
+    }, 200);
         },
   methods: {
     async returnModify(value) {
@@ -246,6 +193,7 @@ export default {
     },
     gotoDetail(item) {
       this.$router.push(`/device-detail/${item.ID}`);
+      // this.$router.push(`/device-detail/${item.ID}`);
     },
     async loadData() {
       await this.$store.dispatch("loadDataDeviceMaster");
