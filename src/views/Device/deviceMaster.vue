@@ -2,13 +2,13 @@
   <v-container class="fontPrompt" v-if="!$store.state.loadingPage">
     <!-- Table Section -->
     <v-card >
-      <v-data-table :search="search" :headers="headers" :items="dataDevice" :items-per-page="15"  class="tableDevice">
+      <v-data-table :search="dataFilter_Device.search" :headers="headers" :items="dataDevice" :items-per-page="15"  class="tableDevice">
         <template v-slot:top>
           <v-toolbar flat color="white">
             <v-toolbar-title>ค้นหาอุปกรณ์ที่คุณต้องการ</v-toolbar-title>
             <v-divider class="mx-4" inset vertical></v-divider>
             <v-text-field
-              v-model="search"
+              v-model="dataFilter_Device.search"
               append-icon="search"
               label="Search"
               single-line
@@ -19,7 +19,7 @@
                 <v-checkbox
                 color="blue darken-1"
                 class="mt-7"
-                v-model="checkboxDepart.it"
+                v-model="dataFilter_Device.checkboxDepart.it"
                 label="แผนก IT"
                 @change="FilterJob"
               ></v-checkbox>
@@ -27,7 +27,7 @@
               <v-checkbox
                 color="blue darken-1"
                 class="mt-7"
-                v-model="checkboxDepart.ma"
+                v-model="dataFilter_Device.checkboxDepart.ma"
                 label="แผนก MA"
                 @change="FilterJob"
               ></v-checkbox>
@@ -137,13 +137,15 @@ export default {
         avatar_bg: "#00FFFF",
         avatar_ic: "mdi-desktop-mac",
       },
-      checkboxDepart: {
-        it: true,
-        ma: true
-      },
       selectDepart: Number,
-      search: "",
       mDataArray: [],
+      dataFilter_Device: {
+        search: "",
+        checkboxDepart: {
+          it: true,
+          ma: true,
+        },
+      },
       headers: [
         {
           text: "เลขID",
@@ -173,6 +175,10 @@ export default {
     this.$store.state.loadingPage = true;
       await this.loadData();
       this.checkDepart();
+      if (this.$store.state.deviceMaster.dataFilter_Device) {
+      this.dataFilter_Device = this.$store.state.deviceMaster.dataFilter_Device;
+      //console.log('dataFilter_Device : ' , this.dataFilter_Device)
+    }
       setTimeout(() => {
       this.$store.state.loadingPage = false;
     }, 200);
@@ -192,6 +198,7 @@ export default {
       this.$store.state.deviceMaster.ShowTable = true;
     },
     gotoDetail(item) {
+      this.$store.state.deviceMaster.dataFilter_Device = this.dataFilter_Device;
       this.$router.push(`/device-detail/${item.ID}`);
       // this.$router.push(`/device-detail/${item.ID}`);
     },
@@ -230,17 +237,17 @@ export default {
       // เช็ค Sumbill
       this.dataDevice = this.$store.getters.DataDeviceMaster
 
-      if(this.checkboxDepart.it && this.checkboxDepart.ma) {
+      if(this.dataFilter_Device.checkboxDepart.it && this.dataFilter_Device.checkboxDepart.ma) {
         this.dataDevice = this.$store.getters.DataDeviceMaster
-      } else if (! this.checkboxDepart.it && this.checkboxDepart.ma) {
+      } else if (! this.dataFilter_Device.checkboxDepart.it && this.dataFilter_Device.checkboxDepart.ma) {
          this.dataDevice = this.dataDevice.filter((i) => {
            return i.JobTypeCode === "02";
          })
-      } else if (this.checkboxDepart.it && !this.checkboxDepart.ma) {
+      } else if (this.dataFilter_Device.checkboxDepart.it && !this.dataFilter_Device.checkboxDepart.ma) {
          this.dataDevice = this.dataDevice.filter((i) => {
            return i.JobTypeCode === "01";
          })
-      } else if (! this.checkboxDepart.it && !this.checkboxDepart.ma) {
+      } else if (! this.dataFilter_Device.checkboxDepart.it && !this.dataFilter_Device.checkboxDepart.ma) {
          this.dataDevice = []
       }
 

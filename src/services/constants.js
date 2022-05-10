@@ -97,7 +97,9 @@ export const serverOrderStatus = {
     GETSTONEPRODUCT: 'getstoneproduct',
     GETORDERDETAILSTATUS: 'getorderdetailstatus',
     GETWIGHTDIFFGOLD: 'reportworkerweightgold',
-    GETDATALINECHART:'getdataLineChartQA'
+    GETDATALINECHART:'getdataLineChartQA',
+    GETCASTINGREPAIRBYITEM: 'castingRepairReportByItem',
+    GETCASTINGREPAIRBYORDER: 'castingRepairReportByOrder'
 }
 
 export const serverStone = {

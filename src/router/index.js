@@ -39,6 +39,18 @@ const routes = [
         component: Login,
     },
     {
+        path: "/casting-repair-byitem",
+        name: "casting-repair-byitem",
+        component: () => import(/* webpackChunkName: "reportCasting" */ "../views/OrderStatus/CastingRepairByItem.vue"),
+        beforeEnter: checkLogin
+    },
+    {
+        path: "/casting-repair-byorder",
+        name: "casting-repair-byorder",
+        component: () => import(/* webpackChunkName: "reportCasting" */ "../views/OrderStatus/CastingRepairByOrder.vue"),
+        beforeEnter: checkLogin
+    },
+    {
         path: "/report",
         name: "report",
         component: () => import(/* webpackChunkName: "report" */ "../views/report.vue"),

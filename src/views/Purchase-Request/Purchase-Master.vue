@@ -3,7 +3,7 @@
     <v-col>
       <v-card>
         <v-data-table
-          :search="search"
+          :search="dataFilter.search"
           :headers="headers"
           class="elevation-1 tablePurchase mt-5"
           :items="getPurchaseBillMaster2"
@@ -17,7 +17,7 @@
                   <v-divider class="mx-4" inset vertical></v-divider>
                   <v-text-field
                     append-icon="search"
-                    v-model="search"
+                    v-model="dataFilter.search"
                     label="ค้นหาด้วยชื่อ"
                     class="mt-6"
                     outlined
@@ -261,7 +261,6 @@ import api from "../../services/api";
 export default {
   data() {
     return {
-      search: "",
       getPurchaseBillMaster: [],
       getPurchaseBillMaster2: [],
       SectionSelect: [],
@@ -274,6 +273,9 @@ export default {
       DataStatuschange: [],
       statusChange: [],
       ItemsName: [],
+      dataFilter: {
+        search: "",
+      },
       headers: [
         {
           text: "เลขที่บิล",
@@ -387,6 +389,9 @@ export default {
   async mounted() {
     this.$emit("isCheckLogin", !(await api.isLoggedIn()));
     moment.locale("th");
+    if(this.$store.state.purchaseBillMaster.dataFilter) {
+      this.dataFilter = this.$store.state.purchaseBillMaster.dataFilter
+    }
     await this.getBillMaster();
     await this.getSection();
     await this.getItemsName();
@@ -406,7 +411,7 @@ export default {
 
     // เมื่อกดจะพาไปที่บิลที่พร้อมรับของ
     async linkToBill() {
-      this.search = this.$store.getters.username;
+      this.dataFilter.search = this.$store.getters.username;
       this.snackBarWerning = false;
     },
 
@@ -434,15 +439,8 @@ export default {
     },
 
     async gotoDetail(item, index) {
-      //console.log("item : ", item);
-      //console.log("this.getPurchaseBillMaster2[index] : ",this.getPurchaseBillMaster2[index]);
       this.$store.state.purchaseDetail.dataHeader = item;
-      //console.log("this.getPurchaseBillMaster2 :", this.getPurchaseBillMaster2);
-      // localStorage.setItem(
-      //   "Purchase_Bill_ID",
-      //   JSON.stringify(this.getPurchaseBillMaster[index].Purchase_Bill_ID)
-      // );
-
+      this.$store.state.purchaseBillMaster.dataFilter = this.dataFilter;
       await this.$router.push("/purchase-detail").catch(() => {});
     },
 
@@ -723,7 +721,7 @@ export default {
       this.getPurchaseBillMaster2 = this.getPurchaseBillMaster;
       this.statusShow.id = null;
       this.SectionSelect.SectionCode = null;
-      this.search = null;
+      this.dataFilter.search = null;
     },
     async confirmChangeStatus() {
       //console.log("มาถึง confirmChangeStatus")

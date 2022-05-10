@@ -62,6 +62,23 @@ const getDataLineChartQA = async(pdTeam) => {
 };
 
 
+const castingRepairByItem = async (betweenDate, orderNumber) => {
+    const res = await httpClient.post(serverOrderStatus.GETCASTINGREPAIRBYITEM, {
+        orderNumber: orderNumber,
+        minDate: betweenDate.minDate,
+        maxDate: betweenDate.maxDate
+    });
+    return res.data
+}
+
+const castingRepairByOrder = async (betweenDate) => {
+    const res = await httpClient.post(serverOrderStatus.GETCASTINGREPAIRBYORDER, {
+        minDate: betweenDate.minDate,
+        maxDate: betweenDate.maxDate
+    });
+    return res.data
+}
+
 
 export default {
     getOrderStatus,
@@ -71,5 +88,7 @@ export default {
     getStoneProduct,
     getdetailStatus,
     getWeightDiffGold,
-    getDataLineChartQA
+    getDataLineChartQA,
+    castingRepairByItem,
+    castingRepairByOrder
 }

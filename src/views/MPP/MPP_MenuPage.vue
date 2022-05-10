@@ -70,6 +70,11 @@ export default {
           icon: "http://192.168.3.5:3000/picture/PICTURE2/WEB_AE/MPP/MenuPage/stone2.png",
           route: "/stonefororder",
         },
+        {
+          name: "ดูสรุปรายการหล่อ",
+          icon: "http://192.168.3.5:3000/picture/PICTURE2/WEB_AE/MPP/MenuPage/stone2.png",
+          route: "/casting-repair-byorder",
+        },
         // {
         //   name: "TEST Insert Img",
         //   icon: "http://192.168.3.5:3000/picture/PICTURE2/WEB_AE/MPP/MenuPage/stone2.png",

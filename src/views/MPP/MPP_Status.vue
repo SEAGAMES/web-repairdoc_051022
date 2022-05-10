@@ -1495,17 +1495,6 @@ export default {
         );
       }
     },
-
-    // async printMaterial() {
-    //   this.loadPDF1 = true;
-
-
-    //   // to do
-      
-    //   setTimeout(() => {
-    //     this.loadPDF1 = false;
-    //   }, 1500);
-    // },
     async printMaterial() {
       this.loadPDF1 = true;
       //loadImg
@@ -1972,7 +1961,7 @@ export default {
           },
         },
       };
-      await apiCreatePDF.createPDF(docDefinition);
+      await apiCreatePDF.testNewprint(docDefinition);
       setTimeout(() => {
         this.loadPDF1 = false;
       }, 1500);

@@ -40,6 +40,7 @@ export default new Vuex.Store({
       deviceData: [],
       showHeaderSum: false,
       dataFilter: null,
+      dataFilter_Device: null
     },
     deviceModify: {
       deviceData: {
@@ -143,6 +144,10 @@ export default new Vuex.Store({
     InsertDevice: {},
     waterlog: {
       chartData: [],
+    },
+    // 
+    purchaseBillMaster: {
+      dataFilter: null,
     },
     //Update 20-10-2564
     purchaseDetail: {
