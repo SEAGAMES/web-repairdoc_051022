@@ -1,8 +1,14 @@
 <template>
   <v-container class="fontPrompt" v-if="!$store.state.loadingPage">
     <!-- Table Section -->
-    <v-card >
-      <v-data-table :search="dataFilter_Device.search" :headers="headers" :items="dataDevice" :items-per-page="15"  class="tableDevice">
+    <v-card>
+      <v-data-table
+        :search="dataFilter_Device.search"
+        :headers="headers"
+        :items="dataDevice"
+        :items-per-page="15"
+        class="tableDevice"
+      >
         <template v-slot:top>
           <v-toolbar flat color="white">
             <v-toolbar-title>ค้นหาอุปกรณ์ที่คุณต้องการ</v-toolbar-title>
@@ -16,21 +22,21 @@
             >
             </v-text-field>
             <v-spacer></v-spacer>
-                <v-checkbox
-                color="blue darken-1"
-                class="mt-7"
-                v-model="dataFilter_Device.checkboxDepart.it"
-                label="แผนก IT"
-                @change="FilterJob"
-              ></v-checkbox>
-              <v-spacer></v-spacer>
-              <v-checkbox
-                color="blue darken-1"
-                class="mt-7"
-                v-model="dataFilter_Device.checkboxDepart.ma"
-                label="แผนก MA"
-                @change="FilterJob"
-              ></v-checkbox>
+            <v-checkbox
+              color="blue darken-1"
+              class="mt-7"
+              v-model="dataFilter_Device.checkboxDepart.it"
+              label="แผนก IT"
+              @change="FilterJob"
+            ></v-checkbox>
+            <v-spacer></v-spacer>
+            <v-checkbox
+              color="blue darken-1"
+              class="mt-7"
+              v-model="dataFilter_Device.checkboxDepart.ma"
+              label="แผนก MA"
+              @change="FilterJob"
+            ></v-checkbox>
             <v-spacer></v-spacer>
             <v-btn
               color="blue darken-1"
@@ -40,6 +46,17 @@
             >
               <v-icon left>add</v-icon>
               <span>เพิ่มอุปกรณ์</span>
+            </v-btn>
+            <v-spacer></v-spacer>
+            <v-btn
+              color="green lighten-4"
+              white
+              s
+              class="mt-7 mb-5"
+              @click="createCategoryDevice.showPop = true"
+            >
+              <v-icon left>add</v-icon>
+              <span>เพิ่ม Category</span>
             </v-btn>
           </v-toolbar>
         </template>
@@ -82,7 +99,7 @@
         transition="dialog-transition"
         class="fontPrompt"
       >
-        <DeviceModify @closePageModify="returnModify"/>
+        <DeviceModify @closePageModify="returnModify" />
       </v-dialog>
 
       <!-- หน้า Confirm Delete -->
@@ -97,23 +114,69 @@
 
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn text @click="confirmDeleteDlg = false, deleteID = 0"> Cancel </v-btn>
+            <v-btn text @click="(confirmDeleteDlg = false), (deleteID = 0)">
+              Cancel
+            </v-btn>
 
             <v-btn color="error" text @click="confirmDelete"> Confirm </v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
-    </v-card>
 
+      <!-- Popup เพิ่ม catagoly อุปกรณ์ -->
+      <v-dialog
+        v-model="createCategoryDevice.showPop"
+        max-height="600"
+        max-width="600"
+        class="fontPrompt"
+      >
+        <v-form class="fontPrompt">
+          <v-card class="pa-8">
+            <v-row>
+              <v-col cols="4">
+                <v-select
+                  :items="section"
+                  label="เลือกเเผนก"
+                  v-model="createCategoryDevice.section"
+                  item-value="ID"
+                  item-text="Section"
+                  dense
+                  outlined
+                ></v-select>
+              </v-col>
+              <v-col cols="6" class="ml-10">
+                <v-text-field
+                  label="กำหนดชื่อ Category"
+                  v-model="createCategoryDevice.categoryAdd"
+                  outlined
+                  dense
+                  :disabled="createCategoryDevice.section == 0"
+                >
+                </v-text-field>
+              </v-col>
+            </v-row>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn @click="createCategoryDevice.showPop = false"
+                >Cancle</v-btn
+              >
+              <v-btn color="error" @click="addCategoryDevice()">Confirm</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-form>
+      </v-dialog>
+    </v-card>
 
     <v-row class="mt-10">
       <v-spacer></v-spacer>
-      <v-btn color="#ff0000" dark @click="$store.state.deviceMaster.ShowTable = false" v-if="$store.state.deviceMaster.ShowTable"
+      <v-btn
+        color="#ff0000"
+        dark
+        @click="$store.state.deviceMaster.ShowTable = false"
+        v-if="$store.state.deviceMaster.ShowTable"
         >กลับ</v-btn
       >
     </v-row>
-
-
   </v-container>
 </template>
 
@@ -125,6 +188,22 @@ export default {
   name: "device-master",
   data() {
     return {
+      section: [
+        {
+          ID: "01",
+          Section: "IT",
+        },
+        {
+          ID: "02",
+          Section: "MA",
+        },
+      ],
+      //เพิ่ม createDeviceCategory
+      createCategoryDevice: {
+        showPop: false,
+        categoryAdd: "",
+        section: "",
+      },
       ma: {
         title: "MA",
         subtitle: "ซ่อมบำรุง",
@@ -157,15 +236,15 @@ export default {
         { text: "หมายเลขเครื่อง", value: "DeviceNo" },
         { text: "ชั้น", value: "FloorName" },
         { text: "ห้อง", value: "RoomName" },
-        { text: "รายละเอียด", value: "Desciption", sortable: false},
+        { text: "รายละเอียด", value: "Desciption", sortable: false },
         { text: "สถานะ", value: "Status1" },
-        { text: "Action", value: "", sortable: false},
+        { text: "Action", value: "", sortable: false },
       ],
       dataDevice: [],
       dataDevice2: [],
       showModify: false,
       confirmDeleteDlg: false,
-      deleteID: 0
+      deleteID: 0,
     };
   },
   components: {
@@ -173,20 +252,21 @@ export default {
   },
   async mounted() {
     this.$store.state.loadingPage = true;
-      await this.loadData();
-      this.checkDepart();
-      if (this.$store.state.deviceMaster.dataFilter_Device) {
+
+    this.checkDepart();
+    if (this.$store.state.deviceMaster.dataFilter_Device) {
       this.dataFilter_Device = this.$store.state.deviceMaster.dataFilter_Device;
       //console.log('dataFilter_Device : ' , this.dataFilter_Device)
     }
-      setTimeout(() => {
+    await this.loadData();
+    setTimeout(() => {
       this.$store.state.loadingPage = false;
     }, 200);
-        },
+  },
   methods: {
     async returnModify(value) {
-      if(value) {
-        await this.loadData()
+      if (value) {
+        await this.loadData();
       }
     },
     selectDepartment(value) {
@@ -204,11 +284,13 @@ export default {
     },
     async loadData() {
       await this.$store.dispatch("loadDataDeviceMaster");
-      this.dataDevice = this.$store.getters.DataDeviceMaster
+      this.dataDevice = this.$store.getters.DataDeviceMaster;
+      this.dataDevice2 = this.$store.getters.DataDeviceMaster;
+      await this.FilterJob();
     },
     showdeleteDevice(id) {
       this.confirmDeleteDlg = true;
-      this.deleteID = id
+      this.deleteID = id;
       // console.log(id);
     },
     async confirmDelete() {
@@ -221,44 +303,80 @@ export default {
       // console.log(this.$store.state.deviceMaster.selectDepart)
       if (this.$store.state.deviceMaster.selectDepart !== "") {
         // console.log('เข้าเงื่อนไข')
-        this.selectDepart(this.$store.state.deviceMaster.selectDepart)
+        this.selectDepart(this.$store.state.deviceMaster.selectDepart);
       }
     },
     async clickModify(id) {
-      await this.$store.dispatch('loadFormDevice')
+      await this.$store.dispatch("loadFormDevice");
       await this.$store.dispatch({
-              type: "modifyDeviceID",
-              id: id
-            });
+        type: "modifyDeviceID",
+        id: id,
+      });
       // console.log(this.$store.getters.editDeviceID);
       // console.log('getterdata', this.$store.getters.DataDeviceEdit);
     },
     FilterJob() {
       // เช็ค Sumbill
-      this.dataDevice = this.$store.getters.DataDeviceMaster
+      this.dataDevice = this.$store.getters.DataDeviceMaster;
 
-      if(this.dataFilter_Device.checkboxDepart.it && this.dataFilter_Device.checkboxDepart.ma) {
-        this.dataDevice = this.$store.getters.DataDeviceMaster
-      } else if (! this.dataFilter_Device.checkboxDepart.it && this.dataFilter_Device.checkboxDepart.ma) {
-         this.dataDevice = this.dataDevice.filter((i) => {
-           return i.JobTypeCode === "02";
-         })
-      } else if (this.dataFilter_Device.checkboxDepart.it && !this.dataFilter_Device.checkboxDepart.ma) {
-         this.dataDevice = this.dataDevice.filter((i) => {
-           return i.JobTypeCode === "01";
-         })
-      } else if (! this.dataFilter_Device.checkboxDepart.it && !this.dataFilter_Device.checkboxDepart.ma) {
-         this.dataDevice = []
+      if (
+        this.dataFilter_Device.checkboxDepart.it &&
+        this.dataFilter_Device.checkboxDepart.ma
+      ) {
+        this.dataDevice = this.$store.getters.DataDeviceMaster;
+      } else if (
+        !this.dataFilter_Device.checkboxDepart.it &&
+        this.dataFilter_Device.checkboxDepart.ma
+      ) {
+        this.dataDevice = this.dataDevice.filter((i) => {
+          return i.JobTypeCode === "02";
+        });
+      } else if (
+        this.dataFilter_Device.checkboxDepart.it &&
+        !this.dataFilter_Device.checkboxDepart.ma
+      ) {
+        this.dataDevice = this.dataDevice.filter((i) => {
+          return i.JobTypeCode === "01";
+        });
+      } else if (
+        !this.dataFilter_Device.checkboxDepart.it &&
+        !this.dataFilter_Device.checkboxDepart.ma
+      ) {
+        this.dataDevice = [];
       }
-
+    },
+    async addCategoryDevice() {
+      const result = await apiDevice.createCategoryDevice(
+        this.createCategoryDevice.section,
+        this.createCategoryDevice.categoryAdd
+      );
+      this.createCategoryDevice.showPop = false;
+      if (result == "ok") {
+        await this.$swal({
+          title: "Update Success",
+          icon: "success",
+          text: "Your work has been saved",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        await this.loadData();
+        this.createCategoryDevice.section = "";
+        this.createCategoryDevice.categoryAdd = "";
+      } else {
+        await this.$swal({
+          title: "Error",
+          icon: "error",
+          text: "Cannot be saved",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
     },
   },
 };
 </script>
 
 <style>
-
-
 .tableDevice table th {
   font-size: 14px !important;
   text-align: center;

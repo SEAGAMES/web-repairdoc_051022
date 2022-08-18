@@ -38,7 +38,7 @@
               </v-col>
             </v-row>
 
-            <!-- ประเภทอุปกรณ์ -->
+            <!-- ประเภทอุปกรณ์ เพิ่ม filterCatagory -->
             <v-row>
               <v-col>
                 <v-select
@@ -49,7 +49,7 @@
                   label="ประเภทอุปกรณ์ที่แจ้ง"
                   :disabled="disableCate"
                   outlined
-                  @change="filterDevice(1)"
+                  @change="filterDevice(1), filterCatagory(createData.CategoryCode)"
                 />
               </v-col>
             </v-row>
@@ -64,7 +64,7 @@
                   item-text="FloorName"
                   label="ชั้นที่แจ้ง"
                   outlined
-                  @change="filterRoom(createData.FloorCode)&& filterDevice(1)"
+                  @change="filterRoom(createData.FloorCode) && filterDevice(1)"
                   required
                 />
               </v-col>
@@ -107,18 +107,48 @@
                   label="วันที่ต้องการให้เสร็จ"
                   required
                   outlined
-                  :disabled=" $store.getters.policyCode !== '03' "
+                  :disabled=" $store.getters.policyCode !== '03' && $store.state.username !== '0239' "
                 />
               </v-col>
 
               <v-col  lg="3" md="3" sm="3">
                 <v-text-field
                   v-model="createData.Tel"
-                  type="text"
+                  type="number"
                   label="เบอร์โทรภายใน"
                   required
                   outlined
                 />
+              </v-col>
+            </v-row>
+
+            <!-- เพิ่ม -->
+            <!-- เลขที่บิล -->
+            <v-row v-if="showAcCatagory">
+              <v-col lg="6" md="6" sm="6">
+                <v-text-field
+                 v-model="createData.RepairBillNo"
+                 label="เลขที่บิล"
+                 append-icon="mdi-barcode"
+                 required
+                 outlined
+                 :counter="11"
+                 :disabled= "createData.CategoryCode == null"
+                  @change="checkPDProcessName()"
+                >
+                </v-text-field>
+              </v-col>
+
+              <!-- บิลอยู่ที่เเผนก -->
+              <v-col lg="6" md="6" sm="6">
+                <v-text-field
+                 v-model="SectionPDProcessName"
+                 label="บิลอยู่ที่เเผนก"
+                 required
+                 outlined
+                 disabled
+                >
+                </v-text-field>
               </v-col>
             </v-row>
 
@@ -156,9 +186,28 @@
           </v-form>
           <!-- <span>{{product}}</span> -->
         </v-card>
+
+        <!-- Warning Length -->
+        <div class="text-center ma-2">
+          <v-snackbar
+            v-model="LengthBarWerning"
+            top
+            width="1000"
+            align="center"
+            :timeout="7000"
+          >
+            <div class="fontSarabun fontSize16 text-center">
+              กรุณาใส่เลขที่บิลทั้ง 11 หลักให้ถูกต้องด้วยครับ
+              <v-icon small class="ml-1" color="yellow"
+                >mdi-shield-check</v-icon
+              >
+            </div>
+          </v-snackbar>
+        </div> 
+        
       </v-col>
     </v-row>
-  </v-container>
+  </v-container> 
 </template>
 
 <script>
@@ -173,6 +222,7 @@ export default {
       disableRoom: true,
       showDevice: false,
       showMaCatagory: false,
+      showAcCatagory: false, // เพิ่ม
       createData: {
         JobTypeCode: null,
         CategoryCode: null,
@@ -187,14 +237,15 @@ export default {
         RepairPrice: 0,
         PartPrice: 0,
         Status: "0",
-        ApprovStatus: "0"
+        ApprovStatus: "0", //เพิ่ม
+        RepairBillNo: "",
       },
       createData2: {
         JobTypeCode: null,
         CategoryCode: null,
         FloorCode: null,
         RoomCode: null,
-        DeviceNo: null,
+        DeviceNo: "",
         ContactPerson: this.$store.state.username,
         Tel: null,
         DueDate: new Date(),
@@ -203,7 +254,8 @@ export default {
         RepairPrice: 0,
         PartPrice: 0,
         Status: "0",
-        ApprovStatus: "0"
+        ApprovStatus: "0",
+        RepairBillNo: "",
       },
       imageURL: null,
       roomEnable: true,
@@ -216,7 +268,16 @@ export default {
           JobTypeCode: "02",
           JobTypeName: "แผนกซ่อมบำรุง",
         },
+        {
+          JobTypeCode: "03", // เพิ่ม
+          JobTypeName: "แผนกบัญชี",
+        },
       ],
+      // เพิ่ม
+      PDProcessName: [],
+      SectionPDProcessName: [],
+      LengthBarWerning: false,
+
       category: [],
       floor: [],
       room: [],
@@ -239,6 +300,7 @@ export default {
     async loadForm() {
       await this.$store.dispatch("loadFormDevice");
       await this.$store.dispatch("getDeviceFilter");
+      this.PDProcessName = await apiRepairDoc.getPDProcess(); // เพิ่ม
       this.category = this.$store.getters.formDeviceCat;
       this.floor = this.$store.getters.formDeviceFloor;
       this.room = this.$store.getters.formDeviceRoom;
@@ -247,10 +309,10 @@ export default {
     },
     async submit() {
       this.submitLoading = true;
-      // console.log(this.createData)
       const checkdata = this.checkformData();
       if (checkdata) {
-        const result = await apiRepairDoc.createRepairDoc(this.createData)
+        // console.log(this.createData);
+        const result = await apiRepairDoc.createRepairDoc(this.createData);
         if (result == "ok") {
           await this.$swal({
             title: "Import Success",
@@ -259,9 +321,9 @@ export default {
             showConfirmButton: false,
             timer: 1500,
           });
-          (this.error = []);
-          this.createData = this.createData2;   
-          await this.$router.push('/repairdoc-master');
+          this.error = [];
+          this.createData = this.createData2;
+          await this.$router.push("/repairdoc-master");
           this.submitLoading = false;
         } else {
           await this.$swal({
@@ -281,9 +343,14 @@ export default {
       this.$router.back();
     },
     filtercat(JobType) {
-      // console.log(JobType);
+      // เพิ่ม เมื่อเปลี่ยนเเผนกให้ค่าของ Device หรือ Bill เป็น null
+
+      this.createData.DeviceNo = "";
+
+      this.createData.RepairBillNo = "";
+      this.showAcCatagory = false;
       this.showDevice = false;
-      this.showMaCatagory = false;
+      this.showMaCatagory = false; // เพิ่ม
       this.category = this.$store.getters.formDeviceCat;
       this.category = this.category.filter((P) => {
         return P.JobTypeCode == JobType;
@@ -306,17 +373,23 @@ export default {
     },
     filterDevice(checkEnable) {
       // console.log(checkEnable);
-      this.showDevice = true
+      this.showDevice = true;
       // console.log(this.createData);
-      this.createData.DeviceNo = null
-      if(this.createData.CategoryCode === 'A6' ||
-         this.createData.CategoryCode === 'A5' ||
-         this.createData.CategoryCode === 'B1' ||
-         this.createData.CategoryCode === 'B2' ||
-         this.createData.CategoryCode === 'B99'
+      this.createData.DeviceNo = null;
+      if (
+        this.createData.CategoryCode === "A6" ||
+        this.createData.CategoryCode === "A5" ||
+        this.createData.CategoryCode === "B1" ||
+        this.createData.CategoryCode === "B2" ||
+        this.createData.CategoryCode === "B99" ||
+        this.createData.CategoryCode === "D1" // เพิ่ม
       ) {
         // this.createData.DeviceNo = null
-        this.showDevice = false
+        this.showDevice = false;
+      }
+      if (this.createData.CategoryCode === "D1") {
+        // เพิ่ม
+        this.showAcCatagory = true;
       }
       if (checkEnable === 0) {
         // console.log('เปิด')
@@ -345,26 +418,59 @@ export default {
         });
       }
     },
+    // เพิ่ม
+    filterCatagory() {
+      if (this.JobTypeCode == "03" && this.CatagoryCode == "D1") {
+        this.showAcCatagory = true;
+      }
+    },
     checkformData() {
+      this.checkconsole();
       if (
         this.createData.JobTypeCode &&
         this.createData.CategoryCode &&
         this.createData.FloorCode &&
         this.createData.RoomCode &&
         this.createData.Tel &&
-        this.createData.BrokenDes) { 
-          if(this.createData.DeviceNo) {
+        this.createData.BrokenDes
+      ) {
+        // Check เลขที่บิลซ่อม บัญชี
+        if (
+          this.createData.CategoryCode === "D1" &&
+          this.createData.RepairBillNo.length === 11
+        ) {
+          if (this.SectionPDProcessName.length > 0) {
             return true;
-          } else if (!this.createData.DeviceNo) {
-            if(this.createData.CategoryCode === 'A6' ||
-              this.createData.CategoryCode === 'A5' ||
-              this.createData.CategoryCode === 'B1' ||
-              this.createData.CategoryCode === 'B2' ||
-              this.createData.CategoryCode === 'B99') {
-              return true;
-            }
           }
-           }
+        } else if (
+          // เช็ค Device No
+          this.createData.CategoryCode !== "A6" &&
+          this.createData.CategoryCode !== "A5" &&
+          this.createData.CategoryCode !== "B1" &&
+          this.createData.CategoryCode !== "B2" &&
+          this.createData.CategoryCode !== "B99" &&
+          this.createData.DeviceNo !== null &&
+          this.createData.DeviceNo !== ""
+        ) {
+          return true;
+        } else if (
+          // แจ้งอื่นๆโดยไม่ระบบเลขที่เครื่อง
+          this.createData.CategoryCode === "A6" ||
+          this.createData.CategoryCode === "A5" ||
+          this.createData.CategoryCode === "B1" ||
+          this.createData.CategoryCode === "B2" ||
+          this.createData.CategoryCode === "B99"
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    },
+    checkconsole() {
+      // console.log(this.createData);
       this.error = [];
       if (!this.createData.JobTypeCode) {
         this.error.push("โปรดเลือกแผนก");
@@ -378,29 +484,48 @@ export default {
       if (!this.createData.RoomCode) {
         this.error.push("โปรดเลือกห้องอยู่ของเครื่อง");
       }
-      if (!this.createData.BrokenDes) {
-        this.error.push("โปรดระบุอาการเสีย");
-      }
-      if (!this.createData.DeviceNo) {
-        if(this.createData.CategoryCode === 'A6' ||
-              this.createData.CategoryCode === 'A5' ||
-              this.createData.CategoryCode === 'B1' ||
-              this.createData.CategoryCode === 'B2' ||
-              this.createData.CategoryCode === 'B99') {
-              this.error.push("โปรดระบุเลขที่เครื่อง");
-            }
-      }
       if (!this.createData.Tel) {
         this.error.push("โปรดระบุเบอร์โทร");
       }
+      if (!this.createData.BrokenDes || this.createData.BrokenDes === "") {
+        this.error.push("โปรดระบุอาการเสีย");
+      }
+      if (
+        this.createData.CategoryCode !== "A6" &&
+        this.createData.CategoryCode !== "A5" &&
+        this.createData.CategoryCode !== "B1" &&
+        this.createData.CategoryCode !== "B2" &&
+        this.createData.CategoryCode !== "B99" &&
+        this.createData.CategoryCode !== "D1" &&
+        (this.createData.DeviceNo === "" || this.createData.DeviceNo === null)
+      ) {
+        this.error.push("โปรดระบุเลขที่เครื่อง");
+      }
+      if (
+        this.createData.CategoryCode === "D1" &&
+        (this.createData.RepairBillNo.length !== 11 ||
+          this.SectionPDProcessName.length <= 0)
+      ) {
+        this.error.push("โปรดระบุเลขที่บิลให้ถูกต้อง");
+      }
     },
-    checkconsole() {
-      // console.log(this.createData)
-    }
+
+    checkPDProcessName() {
+      // เพิ่ม
+      if (this.createData.RepairBillNo === null) {
+      } else if (this.createData.RepairBillNo === "") {
+      }
+      if (this.createData.RepairBillNo.length != 11) {
+        this.LengthBarWerning = true;
+      } else {
+        const subStringCode = this.createData.RepairBillNo.substring(1, 3);
+        this.SectionPDProcessName = this.PDProcessName.filter(
+          ({ PDProcessCode }) => subStringCode === PDProcessCode
+        ).map(({ PDProcessName }) => PDProcessName);
+      }
+    },
   },
 };
-
-
 </script>
 
 <style>

@@ -10,12 +10,12 @@ const getInvetoryFull = async () => {
 
 //GETBILLMASTERBYBILLID
 const getBillMasterByID = async (Bill_ID) => {
-    const result = await httpClient.get(
-      `${serverPurchaseRequest.GETBILLMASTERBYBILLID}/${Bill_ID}`
-    );
-    //console.log(result.data);
-    return result.data;
-  };
+  const result = await httpClient.get(
+    `${serverPurchaseRequest.GETBILLMASTERBYBILLID}/${Bill_ID}`
+  );
+  //console.log(result.data);
+  return result.data;
+};
 
 const getItemType = async () => {
   const result = await httpClient.get(`${serverPurchaseRequest.GETITEMTYPE}`);
@@ -83,7 +83,7 @@ const getBillOrder = async (Bill_ID) => {
 
 //GETITEMSTATUS
 
-const getItemStatus = async (itemStatus1 , itemStatus2) => {
+const getItemStatus = async (itemStatus1, itemStatus2) => {
   // console.log("itemStatus1 : " , itemStatus1)
   // console.log("itemStatus2 : " , itemStatus2)
   const result = await httpClient.get(
@@ -132,15 +132,15 @@ const updateStatus = async (StatusCode, Bill_ID) => {
 //UPDATEINSPACTOR
 
 const updateInspactor = async (Emp_Code, Bill_ID) => {
-    //console.log("Emp_Code หน้า Api : ", Emp_Code);
-    //console.log("Bill_ID หน้า Api : ", Bill_ID);
-  
-    let result = await httpClient.post(
-      `${serverPurchaseRequest.UPDATEINSPACTOR}/${Emp_Code}/${Bill_ID}`
-    );
-  
-    return result;
-  };
+  //console.log("Emp_Code หน้า Api : ", Emp_Code);
+  //console.log("Bill_ID หน้า Api : ", Bill_ID);
+
+  let result = await httpClient.post(
+    `${serverPurchaseRequest.UPDATEINSPACTOR}/${Emp_Code}/${Bill_ID}`
+  );
+
+  return result;
+};
 
 //UPDATEBILLDETAIL
 const updateBillDetail = async (Bill_ID, datalist) => {
@@ -148,7 +148,7 @@ const updateBillDetail = async (Bill_ID, datalist) => {
   //console.log("datalist หน้า Api : ", datalist);
 
   let result = await httpClient.post(
-    `${serverPurchaseRequest.UPDATEBILLDETAIL}/${Bill_ID}`,datalist
+    `${serverPurchaseRequest.UPDATEBILLDETAIL}/${Bill_ID}`, datalist
   );
 
   return result;
@@ -161,7 +161,7 @@ const updateNewItem = async (Bill_ID, index, datalist) => {
   //console.log("datalist หน้า Api : ", datalist);
 
   let result = await httpClient.post(
-    `${serverPurchaseRequest.UPDATENEWITEM}/${Bill_ID}/${index}`,datalist
+    `${serverPurchaseRequest.UPDATENEWITEM}/${Bill_ID}/${index}`, datalist
   );
   return result;
 };
@@ -175,7 +175,7 @@ const updatePrice = async (ItemID, Price) => {
 };
 
 //DELETEFROMEDIT
-const deleteFromEdit = async (bill_id , item_no) => {
+const deleteFromEdit = async (bill_id, item_no) => {
   //console.log("bill_id หน้า API : " , bill_id)
   //console.log("item_no หน้า API : " , item_no)
   const result = await httpClient.delete(
@@ -212,6 +212,14 @@ const StatusWarning = async (empCode) => {
   return result.data;
 };
 
+const getFilterPurchaseDate = async (data) => {
+  console.log('data : ', data)
+  const result = await httpClient.post(serverPurchaseRequest.FILTERPURCHASEBILLDATE, data)
+  console.log('result : ', result)
+  return result.data
+}
+
+
 export default {
   getInvetoryFull,
   getItemType,
@@ -232,5 +240,6 @@ export default {
   deleteBillDetail,
   getPosition,
   getItemsName,
-  StatusWarning
+  StatusWarning,
+  getFilterPurchaseDate
 };

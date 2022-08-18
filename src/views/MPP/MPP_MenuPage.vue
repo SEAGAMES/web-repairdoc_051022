@@ -72,8 +72,13 @@ export default {
         },
         {
           name: "ดูสรุปรายการหล่อ",
-          icon: "http://192.168.3.5:3000/picture/PICTURE2/WEB_AE/MPP/MenuPage/stone2.png",
-          route: "/casting-repair-byorder",
+          icon: "http://192.168.3.5:3000/picture/PICTURE2/WEB_AE/MPP/MenuPage/metal.png",
+          route: "/casting-repair-byitem",
+        },
+        {
+          name: "โอนงานข้ามแผนก",
+          icon: "http://192.168.3.5:3000/picture/PICTURE2/WEB_AE/MPP/MenuPage/receive.png",
+          route: "/process-create-bill",
         },
         // {
         //   name: "TEST Insert Img",
@@ -84,6 +89,7 @@ export default {
     };
   },
   mounted() {
+    // console.log(this.$store.state.mppPage.mppSelectOrderToDetail);
     setTimeout(async () => {
       this.spinner = false;
       if (
@@ -98,7 +104,28 @@ export default {
   },
   methods: {
     async gotoOrderStatus(route) {
-      await this.$router.push(route).catch(() => {});
+      if (route === "/casting-repair-byitem") {
+        // console.log(this.$store.state.mppPage.mppSelectOrderToDetail.OrderNumber);
+        this.$store.state.castingPage.values_gotoDetail.OrderNumber =
+          this.$store.state.mppPage.mppSelectOrderToDetail.OrderNumber;
+        this.$store.state.castingPage.values_gotoDetail.OrderDate =
+          this.$store.state.mppPage.mppSelectOrderToDetail.DueDate;
+        this.$store.state.castingPage.values_gotoDetail.thaiDate =
+          this.$store.state.mppPage.mppSelectOrderToDetail.thaiDate;
+        const newRoute =
+          route +
+          `/${this.$store.state.mppPage.mppSelectOrderToDetail.ProductionTeam}`;
+        // console.log(newRoute);
+        await this.$router.push(newRoute).catch(() => {});
+      } else if (route === "/process-create-bill") {
+        if (this.$store.state.username === "1372") {
+          await this.$router.push(route).catch(() => {});
+        } else {
+          alert("พบกันเร็วๆนี้");
+        }
+      } else {
+        await this.$router.push(route).catch(() => {});
+      }
     },
   },
 };

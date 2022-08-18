@@ -1,37 +1,30 @@
 <template>
-  <v-app >
-    <Header v-if="$store.state.isLogged" />
-    <Menu v-if="$store.state.isLogged" />
-    <Content />
-  </v-app>
+  <router-view></router-view>
 </template>
 
 <script>
-import Header from "./components/core/Header";
-import Menu from "./components/core/Menu";
-import Content from "./components/core/Content";
-import moment from "moment";
+// import Header from "./components/core/Header";
+// import Menu from "./components/core/Menu";
+// import Content from "./components/core/Content";
 // import api from './services/api.js'
 
 export default {
   name: "App",
   components: {
-    Header,
-    Menu,
-    Content,
+    // Header,
+    // Menu,
+    // Content,
   },
   mounted() {
     this.$store.dispatch({ type: "restoreLogin" });
-    moment.locale("th");
+    // this.$moment.locale("th");
 
     setInterval(async () => {
-    
-      if(!this.$store.state.checkTimeout) {
+      if (!this.$store.state.checkTimeout) {
         this.$store.state.checkTimeout = true;
         // console.log('ตั้งเวลาให้เป็นจริง')
         // console.log(this.$store.state.checkTimeout)
       }
-
     }, 300000);
   },
   data: () => ({
@@ -41,15 +34,15 @@ export default {
 </script>
 <style>
 @font-face {
-  font-family: 'Prompt';
-  src: url('./assets/Font/Prompt/Prompt-Regular.ttf') format('truetype');
-  font-style: normal
+  font-family: "Prompt";
+  src: url("./assets/Font/Prompt/Prompt-Regular.ttf") format("truetype");
+  font-style: normal;
 }
 
 @font-face {
-  font-family: 'Sarabun';
-  src: url('./assets/Font/Sarabun/Sarabun-Regular.ttf') format('truetype');
-  font-style: normal
+  font-family: "Sarabun";
+  src: url("./assets/Font/Sarabun/Sarabun-Regular.ttf") format("truetype");
+  font-style: normal;
 }
 
 .fontPrompt {
@@ -64,7 +57,21 @@ export default {
   font-family: "Sarabun", sans-serif;
 }
 
+.fontSize4 {
+  font-size: 4px;
+}
 
+.fontSize6 {
+  font-size: 6px;
+}
+
+.fontSize8 {
+  font-size: 8px;
+}
+
+.fontSize9 {
+  font-size: 9px;
+}
 
 .fontSize10 {
   font-size: 10px;
@@ -97,29 +104,23 @@ export default {
   font-size: 20px;
 }
 
-.fontSize22{
+.fontSize22 {
   font-size: 22px;
 }
 
-.fontSize24{
+.fontSize24 {
   font-size: 24px;
 }
 
-.fontSize26{
+.fontSize26 {
   font-size: 26px;
 }
 
-.fontSize28{
+.fontSize28 {
   font-size: 28px;
 }
 
-.fontSize30{
+.fontSize30 {
   font-size: 30px;
 }
-
-
-
-
-
-
 </style>

@@ -1,24 +1,28 @@
-<template>
+<template >
   <v-navigation-drawer app color="#b0beD5" v-model="$store.state.menuShow">
     <router-link to="/about" exact>
       <v-img :src="$store.getters.EmpPict" alt width="80%" class="ml-5" />
     </router-link>
 
-    <v-list>
+    <v-list class="fontPrompt">
       <v-list-item @click="onclickMenu('/home')">
         <v-list-item-icon>
-          <v-icon>record_voice_over</v-icon>
+          <v-icon color="red">record_voice_over</v-icon>
         </v-list-item-icon>
 
         <v-list-item-title>
-          <div class="fontPrompt">ประกาศ</div>
+          <div>ประกาศ</div>
         </v-list-item-title>
       </v-list-item>
 
-      <v-list-group prepend-icon="mdi-hammer-screwdriver" :value="showMenu">
+      <v-list-group
+        prepend-icon="mdi-hammer-screwdriver"
+        prepend-icon-cb="Function"
+        :value="showMenu"
+      >
         <template v-slot:activator>
           <v-list-item-title>
-            <div class="fontPrompt">IT / ซ่อมบำรุง</div>
+            <div>IT / ซ่อมบำรุง</div>
           </v-list-item-title>
         </template>
         <v-list-item
@@ -29,10 +33,10 @@
           v-model="selectedMenuIT"
         >
           <v-list-item-icon>
-            <v-icon class="ml-5">{{ icon }}</v-icon>
+            <v-icon class="ml-8">{{ icon }}</v-icon>
           </v-list-item-icon>
-          <v-list-item-title class="ml-5">
-            <div class="fontPrompt">{{ title }}</div>
+          <v-list-item-title class="ml-2">
+            <div class="fontSize14">{{ title }}</div>
           </v-list-item-title>
         </v-list-item>
       </v-list-group>
@@ -40,7 +44,7 @@
       <v-list-group prepend-icon="mdi-ring" v-if="menuFactory.length > 0">
         <template v-slot:activator>
           <v-list-item-title>
-            <div class="fontPrompt">ฝ่ายผลิต</div>
+            <div>ฝ่ายผลิต</div>
           </v-list-item-title>
         </template>
         <v-list-item
@@ -50,10 +54,10 @@
           @click="onclickMenu(route)"
         >
           <v-list-item-icon>
-            <v-icon class="ml-5">{{ icon }}</v-icon>
+            <v-icon class="ml-8">{{ icon }}</v-icon>
           </v-list-item-icon>
-          <v-list-item-title class="ml-5">
-            <div class="fontPrompt">{{ title }}</div>
+          <v-list-item-title class="ml-2">
+            <div class="fontSize14">{{ title }}</div>
           </v-list-item-title>
         </v-list-item>
       </v-list-group>
@@ -61,7 +65,7 @@
       <v-list-group prepend-icon="mdi-human" v-if="menuHR.length > 0">
         <template v-slot:activator>
           <v-list-item-title>
-            <div class="fontPrompt">ฝ่ายบุคคล</div>
+            <div>ฝ่ายบุคคล</div>
           </v-list-item-title>
         </template>
         <v-list-item
@@ -71,10 +75,10 @@
           @click="onclickMenu(route)"
         >
           <v-list-item-icon>
-            <v-icon class="ml-5">{{ icon }}</v-icon>
+            <v-icon class="ml-8">{{ icon }}</v-icon>
           </v-list-item-icon>
-          <v-list-item-title class="ml-5">
-            <div class="fontPrompt">{{ title }}</div>
+          <v-list-item-title class="2">
+            <div class="fontSize14">{{ title }}</div>
           </v-list-item-title>
         </v-list-item>
       </v-list-group>
@@ -85,7 +89,7 @@
       >
         <template v-slot:activator>
           <v-list-item-title>
-            <div class="fontPrompt">WaterMonitor</div>
+            <div>WaterMonitor</div>
           </v-list-item-title>
         </template>
         <v-list-item
@@ -95,10 +99,10 @@
           @click="onclickMenu(route)"
         >
           <v-list-item-icon>
-            <v-icon class="ml-5">{{ icon }}</v-icon>
+            <v-icon class="ml-8">{{ icon }}</v-icon>
           </v-list-item-icon>
-          <v-list-item-title class="ml-5">
-            <div class="fontPrompt">{{ title }}</div>
+          <v-list-item-title class="2">
+            <div class="fontSize14">{{ title }}</div>
           </v-list-item-title>
         </v-list-item>
       </v-list-group>
@@ -106,7 +110,7 @@
       <v-list-group prepend-icon="mdi-truck" v-if="menuPurchase.length > 0">
         <template v-slot:activator>
           <v-list-item-title>
-            <div class="fontPrompt">เเผนกจัดซื้อ</div>
+            <div>เเผนกจัดซื้อ</div>
           </v-list-item-title>
         </template>
         <v-list-item
@@ -116,10 +120,10 @@
           @click="onclickMenu(route)"
         >
           <v-list-item-icon>
-            <v-icon class="ml-5">{{ icon }}</v-icon>
+            <v-icon class="ml-8">{{ icon }}</v-icon>
           </v-list-item-icon>
-          <v-list-item-title class="ml-5">
-            <div class="fontPrompt">{{ title }}</div>
+          <v-list-item-title class="ml-2">
+            <div class="fontSize14">{{ title }}</div>
           </v-list-item-title>
         </v-list-item>
       </v-list-group>
@@ -131,11 +135,11 @@
         @click="onclickMenu(route)"
       >
         <v-list-item-icon>
-          <v-icon>{{ icon }}</v-icon>
+          <v-icon color="red">{{ icon }}</v-icon>
         </v-list-item-icon>
 
         <v-list-item-title>
-          <div class="fontPrompt">{{ title }}</div>
+          <div>{{ title }}</div>
         </v-list-item-title>
       </v-list-item>
     </v-list>
@@ -181,25 +185,26 @@ export default {
       if (
         this.$store.getters.policyCode === "01" ||
         this.$store.getters.policyCode === "04" ||
-        this.$store.getters.policyCode === "06" 
+        this.$store.getters.policyCode === "06" ||
+        this.$store.getters.policyCode === "09"
       ) {
         this.otherMenus = [
           ["mdi-truck", "เเผนกจัดซื้อ", "/purchase-master"],
           ["contacts", "ติดต่อเบอร์ภายใน", "/about"],
         ];
-        this.menuIT = [["build", "แจ้งซ่อม", "/repairdoc-master"]];
+        this.menuIT = [["build", "แจ้งซ่อม", "/repairdoc-master", "red"]];
         this.menuFactory = [
           ["storage", "บันทึกประวัติแม่พิมพ์", "/mould-master"],
-          ["mdi-atom-variant", "MPP", "/mpp-orderStatus"],
+          ["mdi-atom-variant", "Order WIP", "/mpp-orderStatus"],
           ["mdi-diamond-stone", "รับวัตถุดิบ", "/mpp-receivebill"],
         ];
 
         // จัดซื้อ
       } else if (this.$store.getters.policyCode === "08") {
         this.menuPurchase = [
-            ["mdi-cart-variant", "เบิกของ", "/purchase-master"],
-            ["mdi-bitcoin", "กำหนดราคา", "/purchase-edit-price"],
-          ];
+          ["mdi-cart-variant", "เบิกของ", "/purchase-master"],
+          ["mdi-bitcoin", "กำหนดราคา", "/purchase-edit-price"],
+        ];
         this.otherMenus = [
           // ["mdi-truck", "เเผนกจัดซื้อ", "/purchase-master"],
           // ["mdi-bitcoin", "กำหนดราคา", "/purchase-edit-price"],
@@ -208,9 +213,9 @@ export default {
         this.menuIT = [["build", "แจ้งซ่อม", "/repairdoc-master"]];
         this.menuFactory = [
           ["storage", "บันทึกประวัติแม่พิมพ์", "/mould-master"],
-          ["mdi-atom-variant", "MPP", "/mpp-orderStatus"],
+          ["mdi-atom-variant", "Order WIP", "/mpp-orderStatus"],
+          ["mdi-gold", "ตรวจจำนวนหล่อ", "/casting-repair-byorder"],
         ];
-        
 
         //ฝ่ายบุคคล
       } else if (this.$store.getters.policyCode === "05") {
@@ -258,8 +263,9 @@ export default {
             ["storage", "บันทึกประวัติแม่พิมพ์", "/mould-master"],
             // ["mdi-firebase", "OrderStatus", "/orderstatus"],
             // ["mdi-diamond-stone", "สถานะพลอย", "/statusstone"],
-            ["mdi-atom-variant", "MPP", "/mpp-orderStatus"],
+            ["mdi-atom-variant", "Order WIP", "/mpp-orderStatus"],
             ["mdi-diamond-stone", "รับวัตถุดิบ", "/mpp-receivebill"],
+            ["mdi-gold", "ตรวจจำนวนหล่อ", "/casting-repair-byorder"],
           ]),
           (this.menuHR = [
             ["audiotrack", "ควบคุมเสียง", "/sound-control"],

@@ -21,13 +21,15 @@
               $router.back(), ($store.state.mppPage.mppBillIDForPrint = null)
             "
             class="mr-1"
-            >กลับ</v-btn>
+            >กลับ</v-btn
+          >
           <v-btn
             color="blue lighten-2"
             dark
             @click="$router.push('/mpp-billmaterails')"
             class="mr-2"
-            >แสดงรายการบิลทั้งหมด</v-btn>
+            >แสดงรายการบิลทั้งหมด</v-btn
+          >
         </v-col>
       </v-row>
 
@@ -138,46 +140,50 @@
             @click="confirmReceive = true"
             >ยืนยันรับงาน</v-btn
           >
+          <v-btn
+            color="black"
+            dark
+            class="fontPrompt"
+            @click="confirmReceiveForDev = true"
+            v-if="
+              dataBill.product.length > 0 && $store.state.username === '1372'
+            "
+            >Receive_For_DEV</v-btn
+          >
         </v-col>
       </v-row>
 
-
       <!-- Sumbill -->
       <v-row v-if="dataBill.product.length > 0">
-        <v-col cols="9">
-
-        </v-col>
+        <v-col cols="9"> </v-col>
         <v-col cols="3">
           <v-card class="mr-7">
             <table>
               <tr>
-                  <th width="300" class="light-blue lighten-4">
-                    <div class=" fontSize14" align="start">รหัสพลอย</div>
-                  </th>
-                  <th width="200" class="light-blue lighten-4">
-                    <div class="fontSize14" align="center">
-                      จำนวนทั้งหมด
-                    </div>
-                  </th>
-                </tr>
+                <th width="300" class="light-blue lighten-4">
+                  <div class="fontSize14" align="start">รหัสพลอย</div>
+                </th>
+                <th width="200" class="light-blue lighten-4">
+                  <div class="fontSize14" align="center">จำนวนทั้งหมด</div>
+                </th>
+              </tr>
 
-                <tr v-for="(Inv, index) in dataBill.sumInv" :key="index">
-                  <th width="300" >
-                    <div class=" fontSize12" align="start"> 
-                      {{ Inv.InvCode }} 
-                      </div>
-                  </th>
-                  <th width="200" >
-                    <div class="fontSize12" align="center">
-                      <span>{{ Inv.SumQty.toLocaleString() }}</span> 
-                    </div>
-                  </th>
-                </tr>
+              <tr v-for="(Inv, index) in dataBill.sumInv" :key="index">
+                <th width="300">
+                  <div class="fontSize12" align="start">
+                    {{ Inv.InvCode }}
+                  </div>
+                </th>
+                <th width="200">
+                  <div class="fontSize12" align="center">
+                    <span>{{ Inv.SumQty.toLocaleString() }}</span>
+                  </div>
+                </th>
+              </tr>
             </table>
           </v-card>
         </v-col>
       </v-row>
-
 
       <v-row v-if="dataBill.product.length > 0" class="mt-n5">
         <v-col>
@@ -328,6 +334,32 @@
       </v-card>
     </v-dialog>
 
+    <!-- popup ยืนยันรับงาน เฉพาะ DEV -->
+    <v-dialog v-model="confirmReceiveForDev" max-width="290">
+      <v-card class="fontPrompt">
+        <v-card-title primary-title>ยืนยันรับงานเฉพาะ DEV</v-card-title>
+        <v-card-text class="body">คุณเป็นใคร ?</v-card-text>
+        <v-text-field
+          class="ml-3 mr-3"
+          dense
+          outlined
+          v-model="whoareyou"
+          type="password"
+        ></v-text-field>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn text @click="confirmReceiveForDev = false">Cancel</v-btn>
+          <v-btn
+            text
+            @click="receiveBillOnlyDev()"
+            color="error"
+            :loading="loadingButton"
+            >Confirm</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <!-- snackbar ยืนยันรับงาน -->
     <div class="text-center ma-2">
       <v-snackbar v-model="snackBarReceiveSuccess">
@@ -366,6 +398,9 @@ export default {
       snackBarReceiveSuccess: false,
       snackBarFalseBill: false,
       confirmReceive: false,
+      confirmReceiveForDev: false,
+      whoareyou: "",
+      loadingButton: false,
     };
   },
   components: {
@@ -390,7 +425,7 @@ export default {
     await this.loadDataBill();
     setTimeout(async () => {
       this.spinner = false;
-      console.log(this.dataBill);
+      // console.log(this.dataBill);
       // if (
       //   this.orderNumber === "" ||
       //   this.orderNumber === undefined ||
@@ -404,7 +439,10 @@ export default {
   methods: {
     async checkinRoute() {
       // console.log('params',this.$route.path);
-      const result = await apiMpp.CheckinProgram(this.$store.state.username, this.$route.path);
+      const result = await apiMpp.CheckinProgram(
+        this.$store.state.username,
+        this.$route.path
+      );
     },
     async loadDataBill() {
       if (
@@ -458,6 +496,21 @@ export default {
     async printBillMaterial() {
       if (this.dataBill.product.length > 0) {
         await apiCreatePDF.printBillMaterial(this.dataBill);
+      }
+    },
+    async receiveBillOnlyDev() {
+      this.loadingButton = true;
+      if (this.whoareyou === "superton") {
+        const res = await apiMpp.receiveBillOnlyDev(
+          +this.inputBillID,
+          this.$store.getters.username
+        );
+        // console.log(res);
+        this.confirmReceiveForDev = false;
+        this.loadingButton = false;
+      } else {
+        alert("คุณไม่ใช้ผู้ที่แก้ไขได้");
+        this.loadingButton = false;
       }
     },
   },

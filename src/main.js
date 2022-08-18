@@ -9,8 +9,10 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 import VueSweetalert2 from 'vue-sweetalert2';
 import VueMqtt from 'vue-mqtt';
 // import VueHtmlToPaper from 'vue-html-to-paper';
-import moment from 'moment-timezone'
+// import momentTime from 'moment-timezone'
 import ImageUploader from 'vue-image-upload-resize'
+import moment from "moment-timezone";
+
 
 
 // const options = {
@@ -28,17 +30,19 @@ import ImageUploader from 'vue-image-upload-resize'
 //   autoClose: true, // if false, the window will not close after printing
 //   windowTitle: window.document.title, // override the window title
 // }
+// moment.locale('th');
 
 
 Vue.use(Vuemoment, {
     moment
 });
+
 Vue.use(VueSweetalert2, ImageUploader);
-Vue.use(VueMqtt, 'ws://192.168.3.7:8083/mqtt', {clientId: 'WebClient-' + parseInt(Math.random() * 100000)})
+Vue.use(VueMqtt, 'ws://192.168.3.7:8083/mqtt', { clientId: 'WebClient-' + parseInt(Math.random() * 100000) })
 // Vue.use(VueHtmlToPaper);
 
 Vue.config.productionTip = false;
-
+moment.locale('th');
 
 new Vue({
     router,

@@ -48,7 +48,7 @@
                   item-text="CategoryName"
                   label="ประเภทอุปกรณ์ที่แจ้ง"
                   outlined
-                  @change="filterDevice(1)"
+                  @change="filterDevice(1), filterCatagory($store.getters.DataRepairModify.CategoryCode)"
                 />
               </v-col>
             </v-row>
@@ -104,7 +104,7 @@
                   label="วันที่ต้องการให้เสร็จ"
                   required
                   outlined
-                  :disabled=" $store.getters.policyCode !== '03'"
+                  :disabled=" $store.getters.policyCode !== '03' && $store.state.username !== '0239' "
                 />
               </v-col>
 
@@ -116,6 +116,35 @@
                   required
                   outlined
                 />
+              </v-col>
+            </v-row>
+
+            <!-- เลขที่บิล -->
+            <v-row v-if="$store.state.repairModify.disableInput.showAcCatagory">
+              <v-col lg="6" md="6" sm="6">
+                <v-text-field
+                 v-model="$store.getters.DataRepairModify.RepairBillNo"
+                 label="เลขที่บิล"
+                 append-icon="mdi-barcode"
+                 required
+                 outlined
+                 :counter="11"
+                 :disabled= "$store.getters.DataRepairModify.CategoryCode == null"
+                 @change="checkPDProcessName($store.getters.DataRepairModify.RepairBillNo)"
+                >
+                </v-text-field>
+              </v-col>
+
+              <!-- บิลอยู่ที่เเผนก -->
+              <v-col lg="6" md="6" sm="6">
+                <v-text-field
+                 v-model="SectionPDProcessName"
+                 label="บิลอยู่ที่เเผนก"
+                 required
+                 outlined
+                 disabled
+                >
+                </v-text-field>
               </v-col>
             </v-row>
 
@@ -153,6 +182,25 @@
           </v-form>
           <!-- <span>{{product}}</span> -->
         </v-card>
+
+        <!-- Warning Length -->
+        <div class="text-center ma-2">
+          <v-snackbar
+            v-model="LengthBarWerning"
+            top
+            width="1000"
+            align="center"
+            :timeout="7000"
+          >
+            <div class="fontSarabun fontSize16 text-center">
+              กรุณาใส่เลขที่บิลทั้ง 11 หลักให้ถูกต้องด้วยครับ
+              <v-icon small class="ml-1" color="yellow"
+                >mdi-shield-check</v-icon
+              >
+            </div>
+          </v-snackbar>
+        </div> 
+
       </v-col>
     </v-row>
   </v-container>
@@ -171,12 +219,13 @@ export default {
       disableRoom: true,
       showDevice: false,
       showMaCatagory: false,
+      showAcCatagory: false,
       createData: {
         JobTypeCode: null,
         CategoryCode: null,
         FloorCode: null,
         RoomCode: null,
-        DeviceNo: null,
+        DeviceNo: "",
         ContactPerson: this.$store.state.username,
         Tel: "",
         DueDate: new Date(),
@@ -185,14 +234,15 @@ export default {
         RepairPrice: 0,
         PartPrice: 0,
         Status: "0",
-        ApprovStatus: "0"
+        ApprovStatus: "0",
+        RepairBillNo: "",
       },
       createData2: {
         JobTypeCode: null,
         CategoryCode: null,
         FloorCode: null,
         RoomCode: null,
-        DeviceNo: null,
+        DeviceNo: "",
         ContactPerson: this.$store.state.username,
         Tel: null,
         DueDate: new Date(),
@@ -201,7 +251,8 @@ export default {
         RepairPrice: 0,
         PartPrice: 0,
         Status: "0",
-        ApprovStatus: "0"
+        ApprovStatus: "0",
+        RepairBillNo: "",
       },
       imageURL: null,
       roomEnable: true,
@@ -214,7 +265,15 @@ export default {
           JobTypeCode: "02",
           JobTypeName: "แผนกซ่อมบำรุง",
         },
+        {
+          JobTypeCode: "03",
+          JobTypeName: "แผนกบัญชี",
+        },
       ],
+      SectionPDProcessName: "",
+      PDProcessName: "",
+      LengthBarWerning: false,
+
       category: [],
       floor: [],
       room: [],
@@ -234,33 +293,43 @@ export default {
     // console.log(this.$store.state.repairModify.disableInput.showDevice);
   },
   methods: {
-     async loadForm() {
+    async loadForm() {
       await this.$store.dispatch("loadFormDevice");
       await this.$store.dispatch("getDeviceFilter");
+      this.PDProcessName = await apiRepairDoc.getPDProcess();
       this.category = this.$store.getters.formDeviceCat;
       this.floor = this.$store.getters.formDeviceFloor;
       this.room = this.$store.getters.formDeviceRoom;
       this.emp = this.$store.getters.formDeviceEmp;
       this.deviceFilter = this.$store.getters.DeviceFilter;
 
+      // เพิ่ม
+      if (this.$store.getters.DataRepairModify.RepairBillNo) {
+        this.checkPDProcessName(
+          this.$store.getters.DataRepairModify.RepairBillNo
+        );
+      }
     },
-     async submit() {
-      this.createData = this.$store.getters.DataRepairModify
-      // console.log(this.createData)
+    async submit() {
+      //console.log(this.SectionPDProcessName)
+      this.createData = this.$store.getters.DataRepairModify;
       const checkdata = this.checkformData();
       if (checkdata) {
-        const result = await apiRepairDoc.updateRepairDoc(this.$store.getters.BillRepairModify, this.createData)
+        const result = await apiRepairDoc.updateRepairDoc(
+          this.$store.getters.BillRepairModify,
+          this.createData
+        );
         // alert('ผ่าน')
         if (result == "ok") {
-          (this.error = []);
-          this.createData = this.createData2;   
-          this.$store.state.repairModify.dataRepair = {}
-          this.$store.state.repairModify.BillRepairModify = 0
-          this.$store.state.repairModify.ShowPopupRepairModify = false
-          this.$emit('closePageModify', true);
-          // this.$store.state.repairModify.showPopupRepairModify = false;
+          this.error = [];
+          this.createData = this.createData2;
+          this.$store.state.repairModify.dataRepair = {};
+          this.$store.state.repairModify.BillRepairModify = 0;
+          this.$store.state.repairModify.ShowPopupRepairModify = false;
+          this.$emit("closePageModify", true);
+          this.$store.state.repairModify.showPopupRepairModify = false;
         } else {
-          this.$emit('closePageModify', false);
+          this.$emit("closePageModify", false);
         }
       }
     },
@@ -268,20 +337,24 @@ export default {
       this.$store.state.repairModify.ShowPopupRepairModify = false;
     },
     filtercat(JobType) {
-      // console.log(JobType);
+      this.$store.getters.DataRepairModify.DeviceNo = "";
+      this.$store.getters.DataRepairModify.RepairBillNo = "";
+      this.$store.getters.DataRepairModify.CategoryCode = "";
+      this.SectionPDProcessName = "";
+      this.$store.state.repairModify.disableInput.showAcCatagory = false;
       this.$store.state.repairModify.disableInput.showDevice = false;
-      this.showMaCatagory = false;
+      this.$store.state.repairModify.disableInput.showAcCatagory = false;
       this.category = this.$store.getters.formDeviceCat;
       this.category = this.category.filter((P) => {
         return P.JobTypeCode == JobType;
       });
       this.disableCate = false;
-      // if (JobType == "01") {
-      //   this.$store.state.repairModify.disableInput.showDevice = true;
-      // }
-      // if (JobType == "02") {
-      //   this.showMaCatagory = true;
-      // }
+      if (JobType == "01") {
+        this.$store.state.repairModify.disableInput.showDevice = true;
+      }
+      if (JobType == "02") {
+        this.showMaCatagory = true;
+      }
     },
     filterRoom(FloorCode) {
       this.room = this.$store.getters.formDeviceRoom;
@@ -292,16 +365,24 @@ export default {
     },
     filterDevice(checkEnable) {
       // console.log(checkEnable);
-      this.$store.state.repairModify.disableInput.showDevice = true
+      this.$store.state.repairModify.disableInput.showDevice = true;
       // console.log(this.createData);
-      if(this.$store.getters.DataRepairModify.CategoryCode === 'A6' ||
-         this.$store.getters.DataRepairModify.CategoryCode === 'A5' ||
-         this.$store.getters.DataRepairModify.CategoryCode === 'B1' ||
-         this.$store.getters.DataRepairModify.CategoryCode === 'B2' ||
-         this.$store.getters.DataRepairModify.CategoryCode === 'B99'
+      this.$store.state.repairModify.dataRepair.DeviceNo = null;
+      // console.log(this.$store.state.repairModify.dataRepair.DeviceNo);
+      if (
+        this.$store.getters.DataRepairModify.CategoryCode === "A6" ||
+        this.$store.getters.DataRepairModify.CategoryCode === "A5" ||
+        this.$store.getters.DataRepairModify.CategoryCode === "B1" ||
+        this.$store.getters.DataRepairModify.CategoryCode === "B2" ||
+        this.$store.getters.DataRepairModify.CategoryCode === "B99" ||
+        this.$store.getters.DataRepairModify.CategoryCode === "D1"
       ) {
-        this.$store.state.repairModify.dataRepair.DeviceNo = null
-        this.$store.state.repairModify.disableInput.showDevice = false
+        // this.$store.state.repairModify.dataRepair.DeviceNo = null
+        this.$store.state.repairModify.disableInput.showDevice = false;
+      }
+      if (this.$store.getters.DataRepairModify.CategoryCode === "D1") {
+        // เพิ่ม
+        this.$store.state.repairModify.disableInput.showAcCatagory = true;
       }
       if (checkEnable === 0) {
         // console.log('เปิด')
@@ -309,10 +390,11 @@ export default {
         this.deviceFilter = this.$store.getters.DeviceFilter;
         this.deviceFilter = this.deviceFilter.filter((D) => {
           return (
-            D.JobTypeCode ==  this.$store.getters.DataRepairModify.JobTypeCode &&
-            D.CategoryCode ==  this.$store.getters.DataRepairModify.CategoryCode &&
-            D.FloorCode ==  this.$store.getters.DataRepairModify.FloorCode &&
-            D.RoomCode ==  this.$store.getters.DataRepairModify.RoomCode
+            D.JobTypeCode == this.$store.getters.DataRepairModify.JobTypeCode &&
+            D.CategoryCode ==
+              this.$store.getters.DataRepairModify.CategoryCode &&
+            D.FloorCode == this.$store.getters.DataRepairModify.FloorCode &&
+            D.RoomCode == this.$store.getters.DataRepairModify.RoomCode
           );
         });
         this.disableDeviceNo = false;
@@ -323,33 +405,78 @@ export default {
         this.deviceFilter = this.deviceFilter.filter((D) => {
           return (
             D.JobTypeCode == this.$store.getters.DataRepairModify.JobTypeCode &&
-            D.CategoryCode == this.$store.getters.DataRepairModify.CategoryCode &&
+            D.CategoryCode ==
+              this.$store.getters.DataRepairModify.CategoryCode &&
             D.FloorCode == this.$store.getters.DataRepairModify.FloorCode &&
             D.RoomCode == this.$store.getters.DataRepairModify.RoomCode
           );
         });
       }
     },
+
+    filterCatagory(CatagoryCode) {
+      if (
+        this.$store.getters.DataRepairModify.JobTypeCode === "03" &&
+        CatagoryCode === "D1"
+      ) {
+        this.$store.state.repairModify.disableInput.showAcCatagory = true;
+      }
+    },
+
     checkformData() {
+      this.checkconsole();
+      console.log(this.$store.getters.DataRepairModify);
+      // if (this.SectionPDProcessName == '') {
+      //   console.log('ว่าง')
+      // }
       if (
         this.$store.getters.DataRepairModify.JobTypeCode &&
         this.$store.getters.DataRepairModify.CategoryCode &&
         this.$store.getters.DataRepairModify.FloorCode &&
         this.$store.getters.DataRepairModify.RoomCode &&
         this.$store.getters.DataRepairModify.Tel &&
-        this.$store.getters.DataRepairModify.BrokenDes) { 
-          if(this.$store.getters.DataRepairModify.DeviceNo) {
-            return true;
-          } else if (!this.$store.getters.DataRepairModify.DeviceNo) {
-            if(this.$store.getters.DataRepairModify.CategoryCode === 'A6' ||
-              this.$store.getters.DataRepairModify.CategoryCode === 'A5' ||
-              this.$store.getters.DataRepairModify.CategoryCode === 'B1' ||
-              this.$store.getters.DataRepairModify.CategoryCode === 'B2' ||
-              this.$store.getters.DataRepairModify.CategoryCode === 'B99') {
-              return true;
-            }
+        this.$store.getters.DataRepairModify.BrokenDes
+      ) {
+        // Check เลขที่บิลซ่อม บัญชี
+        if (
+          this.$store.getters.DataRepairModify.CategoryCode === "D1" &&
+          this.$store.getters.DataRepairModify.RepairBillNo.length === 11
+        ) {
+          // console.log(this.SectionPDProcessName)
+          if (this.SectionPDProcessName === "") {
           }
-           }
+          if (this.SectionPDProcessName.length > 0) {
+            return true;
+          }
+        } else if (
+          // เช็ค Device No
+          this.$store.getters.DataRepairModify.CategoryCode !== "A6" &&
+          this.$store.getters.DataRepairModify.CategoryCode !== "A5" &&
+          this.$store.getters.DataRepairModify.CategoryCode !== "B1" &&
+          this.$store.getters.DataRepairModify.CategoryCode !== "B2" &&
+          this.$store.getters.DataRepairModify.CategoryCode !== "B99" &&
+          this.$store.getters.DataRepairModify.DeviceNo !== null &&
+          this.$store.getters.DataRepairModify.DeviceNo !== ""
+        ) {
+          return true;
+        } else if (
+          // แจ้งอื่นๆโดยไม่ระบบเลขที่เครื่อง
+          this.$store.getters.DataRepairModify.CategoryCode === "A6" ||
+          this.$store.getters.DataRepairModify.CategoryCode === "A5" ||
+          this.$store.getters.DataRepairModify.CategoryCode === "B1" ||
+          this.$store.getters.DataRepairModify.CategoryCode === "B2" ||
+          this.$store.getters.DataRepairModify.CategoryCode === "B99"
+        ) {
+          return true;
+        } else {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    },
+    checkconsole() {
+      // console.log(this.createData);
       this.error = [];
       if (!this.$store.getters.DataRepairModify.JobTypeCode) {
         this.error.push("โปรดเลือกแผนก");
@@ -363,25 +490,46 @@ export default {
       if (!this.$store.getters.DataRepairModify.RoomCode) {
         this.error.push("โปรดเลือกห้องอยู่ของเครื่อง");
       }
-      if (!this.$store.getters.DataRepairModify.BrokenDes) {
-        this.error.push("โปรดระบุอาการเสีย");
-      }
-      if (!this.$store.getters.DataRepairModify.DeviceNo) {
-        if(this.$store.getters.DataRepairModify.CategoryCode !== 'A6' ||
-           this.$store.getters.DataRepairModify.CategoryCode !== 'A5' ||
-           this.$store.getters.DataRepairModify.CategoryCode !== 'B1' ||
-           this.$store.getters.DataRepairModify.CategoryCode !== 'B2' ||
-           this.$store.getters.DataRepairModify.CategoryCode !== 'B99') {
-              this.error.push("โปรดระบุเลขที่เครื่อง");
-            }
-      }
       if (!this.$store.getters.DataRepairModify.Tel) {
         this.error.push("โปรดระบุเบอร์โทร");
       }
+      if (
+        !this.$store.getters.DataRepairModify.BrokenDes ||
+        this.$store.getters.DataRepairModify.BrokenDes === ""
+      ) {
+        this.error.push("โปรดระบุอาการเสีย");
+      }
+      if (
+        this.$store.getters.DataRepairModify.CategoryCode !== "A6" &&
+        this.$store.getters.DataRepairModify.CategoryCode !== "A5" &&
+        this.$store.getters.DataRepairModify.CategoryCode !== "B1" &&
+        this.$store.getters.DataRepairModify.CategoryCode !== "B2" &&
+        this.$store.getters.DataRepairModify.CategoryCode !== "B99" &&
+        this.$store.getters.DataRepairModify.CategoryCode !== "D1" &&
+        (this.$store.getters.DataRepairModify.DeviceNo === "" ||
+          this.$store.getters.DataRepairModify.DeviceNo === null)
+      ) {
+        this.error.push("โปรดระบุเลขที่เครื่อง");
+      }
+      if (
+        this.$store.getters.DataRepairModify.CategoryCode === "D1" &&
+        (this.$store.getters.DataRepairModify.RepairBillNo.length !== 11 ||
+          this.SectionPDProcessName.length <= 0)
+      ) {
+        this.error.push("โปรดระบุเลขที่บิลให้ถูกต้อง");
+      }
     },
-    checkconsole() {
-      // console.log(this.$store.getters.DataRepairModify)
-    }
+    checkPDProcessName(RepairBillNo) {
+      if (RepairBillNo.length != 11) {
+        this.LengthBarWerning = true;
+      } else {
+        const subStringCode =
+          this.$store.getters.DataRepairModify.RepairBillNo.substring(1, 3);
+        this.SectionPDProcessName = this.PDProcessName.filter(
+          ({ PDProcessCode }) => subStringCode === PDProcessCode
+        ).map(({ PDProcessName }) => PDProcessName);
+      }
+    },
   },
 };
 </script>

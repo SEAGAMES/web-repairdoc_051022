@@ -67,7 +67,7 @@ const updateStatus = async (data) => {
       finishDate: new Date(),
     };
     // แก้ไข
-    await httpClient.post(`${serverRepairDoc.UPDATEFINISHDATE}`,dataFinishUpdate);
+    await httpClient.post(`${serverRepairDoc.UPDATEFINISHDATE}`, dataFinishUpdate);
   }
   const result = await httpClient.post(`${serverRepairDoc.UPDATESTATUS}`, data);
   return result.data.result;
@@ -91,16 +91,21 @@ const getHistoryBill = async (DeviceNo) => {
   return result.data.result
 }
 
-const convertImg = async(data) => {
+const convertImg = async (data) => {
   // console.log('Backend', data)
-  const result = await axios.post(apiConvertImg, { UrlIMG : data});
+  const result = await axios.post(apiConvertImg, { UrlIMG: data });
   return `data:image/jpeg;base64,${result.data.result}`;
 }
 
-const getFilterRepairDate = async(data) => {
+const getFilterRepairDate = async (data) => {
   const result = await httpClient.post(serverRepairDoc.GETFILTERREPAIRDATE, data)
   return result.data
 }
+
+const getPDProcess = async () => {
+  const result = await httpClient.get(serverRepairDoc.GETPDPROCESS);
+  return result.data;
+};
 
 export default {
   getDeviceFilter,
@@ -115,5 +120,6 @@ export default {
   getBillRepairDetail,
   getHistoryBill,
   convertImg,
-  getFilterRepairDate
+  getFilterRepairDate,
+  getPDProcess
 };

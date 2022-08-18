@@ -127,12 +127,21 @@
         <template v-slot:item="{ item }" >
           <!-- <tr class="color: grey and myImg"> v-bind:class="{ active: isActive, 'text-danger': hasError }" -->
             <tr v-bind:class="{ 'color: amber lighten-4': item.Status === '3'}">
+
+            <!-- เพิ่ม  -->
+            <td @click="gotoDetail(item)" align="center" width="10">
+              <div class="mx-n5">
+                <v-icon color="green"  v-if="item.ApprovStatus === '1'">mdi-check</v-icon>
+             </div>
+            </td>
             <td @click="gotoDetail(item)" width="50">{{ item.BillDoc }}</td>
-            <td @click="gotoDetail(item)" width="20">{{ item.JobTypeName }}</td>
+            <td @click="gotoDetail(item)" width="20"><div class="mx-5">{{ item.JobTypeName }}</div></td>
             <td @click="gotoDetail(item)" width="150"><div>{{ item.FloorName }}<br><span class="grey--text">{{ item.RoomName }}</span></div></td>
             <!-- <td @click="gotoDetail(item)" width="100">{{ item.RoomName }}</td> -->
             <td @click="gotoDetail(item)" width="100">{{ item.CategoryName }}</td>
-            <td @click="gotoDetail(item)" width="30">{{ item.DeviceNo }}</td>
+
+            <!-- เพิ่ม  -->
+            <td @click="gotoDetail(item)" width="30">{{ item.RepairBillNo !== "" && item.CategoryName === 'เเก้ไขบิลช่าง' ? item.RepairBillNo : item.DeviceNo }}</td> 
             <td @click="gotoDetail(item)" align="center">({{item.dowJobDate}})_{{ item.JobDateShow }}<br>
                 <span class="grey--text">(เวลา {{ item.JobDateTime }} น.)</span>
                 <!-- <span class="grey--text">(เวลา {{ item.JobDate | moment('HH:MM: +0') }} น.)</span> -->
@@ -147,23 +156,24 @@
                     'green': item.DateWIP > 0 , 
                     'orange': item.DateWIP === 0, 
                     'red': item.DateWIP < 0 ,
-                    'blue' : item.Status === '3'
+  'blue': item.Status === '3'
+                    
                     }"
                 >{{  item.Status === '3' ? item.WorkinTime : item.DateWIP }}</v-chip>
               </div> 
             </td>
             <td class="fontPrompt"> 
-              <v-btn color="#0000FF" v-if="item.Status == '0'" @click="changeStatus2(item)" dark small width="100">
+              <v-btn color="#0000FF" v-if="item.Status === '0'" @click="changeStatus2(item)" dark small width="100">
                 <v-icon size="16">mdi-briefcase-download</v-icon>แจ้งซ่อมแล้ว
               </v-btn>
-              <v-btn color="#f39C12" v-if="item.Status == '1'" @click="changeStatus2(item)" dark small width="100">
+              <v-btn color="#f39C12" v-if="item.Status === '1'" @click="changeStatus2(item)" dark small width="100">
                 <v-icon size="16">mdi-wrench</v-icon><span class="ml-1">รอซ่อม</span> 
               </v-btn>
               <v-btn
               small
                 color="#ff0000"
                 full-width
-                v-if="item.Status == '2'"
+                v-if="item.Status === '2'"
                 @click="changeStatus2(item)"
                 dark
                 width="100"
@@ -175,12 +185,24 @@
               small
                 color="#00a65a"
                 full-width
-                v-if="item.Status == '3'"
+                v-if="item.Status === '3'"
                 @click="changeStatus2(item)"
                 dark
                 width="100"
               >
                 <v-icon size="16">mdi-emoticon-outline</v-icon><span class="ml-1 ">ซ่อมเสร็จ</span>
+              </v-btn>
+
+               <v-btn
+              small
+                color="grey lighten-1"
+                full-width
+                v-if="item.Status === '4'"
+                @click="changeStatus2(item)"
+                dark
+                width="100"
+              >
+                <v-icon size="16">mdi-emoticon-outline</v-icon><span class="">ตรวจสอบแล้ว</span>
               </v-btn>
             </td>
 
@@ -337,7 +359,7 @@ import StockCard from "../../components/card/StockCard";
 import RepairEdit from "./repairdocEdit";
 import apiRepairDoc from "../../services/apiRepairDoc";
 import apiCreatePDF from "../../services/apiCreatePDF";
-import api from "../../services/api"
+import api from "../../services/api";
 import moment from "moment";
 
 export default {
@@ -347,7 +369,6 @@ export default {
       printLoading: false,
       changeLoading: false,
       showHeaderSum: false,
-      testif: true,
       checkboxDepart: {
         it: true,
         ma: true,
@@ -355,6 +376,13 @@ export default {
       // search: "",
       mDataArray: [],
       headers: [
+        // เพิ่ม
+        {
+          text: "",
+          align: "center",
+          value: "",
+          justify: "center",
+        },
         {
           text: "เลขที่บิล",
           align: "left",
@@ -378,7 +406,7 @@ export default {
           justify: "center",
         },
         {
-          text: "หมายเลขเครื่อง",
+          text: "หมายเลขเครื่อง / เลขที่บิล",
           value: "DeviceNo",
           align: "center",
           justify: "center",
@@ -447,6 +475,11 @@ export default {
           Status: "ซ่อมเสร็จ",
           color: "#00a65a",
         },
+        {
+          id: "4",
+          Status: "ตรวจสอบแล้ว",
+          color: "#00a65a",
+        },
       ],
       modifyBill: false,
       billRepair: [],
@@ -456,6 +489,7 @@ export default {
       JobSum: {
         Job1: "01",
         Job2: "02",
+        Job3: "03", // เพิ่ม
       },
       dataFilter: {
         jobType: {
@@ -468,6 +502,10 @@ export default {
               id: "02",
               typeName: "MA",
             },
+            {
+              id: "03", // เพิ่ม
+              typeName: "AC",
+            },
           ],
           values: [],
         },
@@ -479,14 +517,14 @@ export default {
         status: {
           values: [],
         },
-        search: ""
+        search: "",
       },
       snackBar: {
         updateStatusSuccess: false,
         updateStatusFailed: false,
         deleteBillSuccess: false,
         deleteBillFailed: false,
-      }
+      },
     };
   },
   components: {
@@ -495,14 +533,24 @@ export default {
   },
   async mounted() {
     this.$store.state.loadingPage = true;
-    if(this.$store.state.deviceMaster.dataFilter) {
-      this.dataFilter = this.$store.state.deviceMaster.dataFilter
+    if (this.$store.getters.policyCode === "03") {
+      this.dataFilter.jobType.values.push("01");
+    } else if (this.$store.getters.policyCode === "02") {
+      this.dataFilter.jobType.values.push("02");
+    } else if (this.$store.getters.policyCode === "09") {
+      // เพิ่ม
+      this.dataFilter.jobType.values.push("03");
+    }
+
+    if (this.$store.state.deviceMaster.dataFilter) {
+      this.dataFilter = this.$store.state.deviceMaster.dataFilter;
     }
     await this.loadData();
     await this.loadSumBill();
-    this.$emit("isCheckLogin", !await api.isLoggedIn());
+    this.$emit("isCheckLogin", !(await api.isLoggedIn()));
     setTimeout(() => {
       this.$store.state.loadingPage = false;
+      // console.log(this.billRepair);
     }, 500);
   },
   methods: {
@@ -511,16 +559,16 @@ export default {
     },
     async returnModify(value) {
       if (value) {
-          this.snackBar.updateStatusSuccess = true;
-          setTimeout(async() => {
-            this.snackBar.updateStatusSuccess = false;
-          }, 1500);
+        this.snackBar.updateStatusSuccess = true;
+        setTimeout(async () => {
+          this.snackBar.updateStatusSuccess = false;
+        }, 1500);
         await this.loadData();
       } else {
         this.snackBar.updateStatusFailed = true;
-          setTimeout(async() => {
-            this.snackBar.updateStatusFailed = false;
-          }, 1500);
+        setTimeout(async () => {
+          this.snackBar.updateStatusFailed = false;
+        }, 1500);
       }
     },
     async loadSumBill() {
@@ -542,7 +590,7 @@ export default {
       this.billRepair = this.$store.getters.billRepair;
       this.billRepair2 = this.$store.getters.billRepair;
       await this.filterAll();
-      // console.log(this.billRepair)
+      //console.log(this.billRepair)
       // console.log(this.$store.getters.billRepair[2].toLocaleTimeString())
     },
     async editItem(item) {
@@ -550,6 +598,9 @@ export default {
       // console.log(item.DeviceNo)
       if (item.DeviceNo !== "null" && item.DeviceNo !== "") {
         this.$store.state.repairModify.disableInput.showDevice = true;
+      } else if (item.RepairBillNo !== null && item.RepairBillNo !== "") {
+        // เพิ่ม
+        this.$store.state.repairModify.disableInput.showAcCatagory = true;
       } else {
         this.$store.state.repairModify.disableInput.showDevice = false;
       }
@@ -572,6 +623,15 @@ export default {
           id: item.BillID,
         });
         // console.log(this.$store.state.repairModify.ShowPopupRepairModify)
+      } else if (
+        this.$store.getters.policyCode === "09" &&
+        item.JobTypeCode === "03"
+      ) {
+        // เพิ่ม
+        await this.$store.dispatch({
+          type: "getBillRepairModify",
+          id: item.BillID,
+        });
       }
     },
     async gotoDetail(item) {
@@ -591,6 +651,11 @@ export default {
         this.$store.getters.policyCode === "03"
       ) {
         (this.deleteID = item.BillID), (this.confirmDeleteDlg = true);
+      } else if (
+        this.$store.getters.policyCode === "09" &&
+        item.JobTypeCode === "03"
+      ) {
+        (this.deleteID = item.BillID), (this.confirmDeleteDlg = true);
       }
     },
     async confirmDelete() {
@@ -600,15 +665,15 @@ export default {
       if (result == "ok") {
         this.snackBar.deleteBillSuccess = true;
         setTimeout(() => {
-           this.snackBar.deleteBillSuccess = false;
+          this.snackBar.deleteBillSuccess = false;
         }, 1500);
-        (this.confirmDeleteDlg = false);
+        this.confirmDeleteDlg = false;
         this.deleteID = 0;
         await this.loadData();
       } else {
         this.snackBar.deleteBillFailed = true;
         setTimeout(() => {
-           this.snackBar.deleteBillFailed = false;
+          this.snackBar.deleteBillFailed = false;
         }, 1500);
         this.confirmDeleteDlg = false;
         this.deleteID = 0;
@@ -617,7 +682,8 @@ export default {
     changeStatus2(item) {
       if (
         this.$store.getters.policyCode === "02" ||
-        this.$store.getters.policyCode === "03"
+        this.$store.getters.policyCode === "03" ||
+        this.$store.getters.policyCode === "09" // เพิ่ม
       ) {
         //ถ้าเป็น ผู้ดูแล ให้กดเปลี่ยนสถานะได้แต่เปลี่ยนสถานะเสร็จแล้วไม่ได้
         if (item.Status !== "3" && this.$store.getters.policyCode === "02") {
@@ -630,6 +696,18 @@ export default {
           // console.log(this.DataStatuschange)
           //ถ้าเป็น SuperUser ให้กดดูได้เลย
         } else if (this.$store.getters.policyCode === "03") {
+          this.changeStatusShowPop = true;
+          this.DataStatuschange.BillID = item.BillID;
+          this.DataStatuschange.status = item.Status;
+          this.DataStatuschange.repairCost = item.RepairPrice;
+          this.DataStatuschange.partsCost = item.PartPrice;
+          this.DataStatuschange.description = item.RepairDes;
+        } else if (
+          item.Status !== "3" &&
+          this.$store.getters.policyCode === "09" &&
+          item.JobTypeCode === "03"
+        ) {
+          // เพิ่ม
           this.changeStatusShowPop = true;
           this.DataStatuschange.BillID = item.BillID;
           this.DataStatuschange.status = item.Status;
@@ -664,7 +742,7 @@ export default {
           this.error = [];
           this.changeStatusShowPop = false;
           this.DataStatuschange = this.DataStatuschange2;
-          setTimeout(async() => {
+          setTimeout(async () => {
             this.snackBar.updateStatusSuccess = false;
             this.changeLoading = false;
           }, 1500);
@@ -674,7 +752,7 @@ export default {
           this.error = [];
           this.changeStatusShowPop = false;
           this.DataStatuschange = this.DataStatuschange2;
-          setTimeout(async() => {
+          setTimeout(async () => {
             this.snackBar.updateStatusFailed = false;
             this.changeLoading = false;
           }, 1500);
@@ -744,8 +822,8 @@ export default {
     },
     async gotoCreate() {
       this.$store.state.deviceMaster.dataFilter = this.dataFilter;
-      await this.$router.push('/repairdoc-create')
-    }
+      await this.$router.push("/repairdoc-create");
+    },
   },
 };
 </script>

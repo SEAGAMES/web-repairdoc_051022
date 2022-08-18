@@ -6,7 +6,7 @@
       <v-spacer></v-spacer>
     </v-row>
 
-    <v-row v-if="$store.getters.policyCode === '03'">
+    <v-row v-if="$store.getters.policyCode === '03' || $store.getters.policyCode === '02'">
       <v-col cols="10">
         <!-- <span>55</span> -->
       </v-col>
@@ -183,14 +183,14 @@ export default {
       }
     },
     async disablePost(item) {
-      console.log(item.ID)
-      const result = await apiPostNews.disablePost(item.ID)
+      console.log(item.ID);
+      const result = await apiPostNews.disablePost(item.ID);
       console.log(result);
-      if (result == 'ok') {
-        alert('......ทำการปิดประกาศแล้ว.....')
+      if (result == "ok") {
+        alert("......ทำการปิดประกาศแล้ว.....");
         await this.loadData();
       }
-    }
+    },
   },
 };
 </script>

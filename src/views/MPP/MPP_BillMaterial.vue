@@ -25,164 +25,103 @@
     <v-row v-if="!spinner">
       <v-col>
         <v-card class="fontSarabun">
-          <v-simple-table class="border">
-            <template v-slot:default>
-              <thead>
-                <tr align="center" justify="center" class="bgColorHeader">
-                  <th width="10">
-                    <v-checkbox v-model="checkboxHeader" color="#88FFF7" />
-                  </th>
-                  <th class="text-center">
-                    <div class="fontSize14">
-                      <b> เลขที่บิล </b>
-                    </div>
-                  </th>
-
-                  <th class="text-center">
-                    <div class="fontSize14">
-                      <b> เลขที่เอกสาร </b>
-                    </div>
-                  </th>
-                  <th class="text-center">
-                    <div class="fontSize14">
-                      <b> วันที่สร้างบิล </b>
-                    </div>
-                  </th>
-                  <th class="text-center">
-                    <div class="fontSize14">
-                      <b> ผู้สร้างบิล </b>
-                    </div>
-                  </th>
-
-                  <th class="text-center" >
-                    <div class="fontSize14">
-                      <b> OrderNumber </b>
-                    </div>
-                  </th>
-
-                  <th class="text-center" width="30">
-                    <div class="fontSize14">
-                      <b> Fac_Team </b>
-                    </div>
-                  </th>
-                  <th class="text-center" width="30">
-                    <div class="fontSize14">
-                      <b> สถานะ </b>
-                    </div>
-                  </th>
-                  <th class="text-center" width="30">
-                    <div class="fontSizes14">
-                      <b> พิมพ์เอกสาร </b>
-                    </div>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr
-                  v-for="bill in dataBill"
-                  :key="bill.Bill_ID"
-                  align="center"
-                  v-bind:class="{
-                    bgForSuccess: +bill.BillStatus === 1,
-                  }"
-                >
-                  <td width="10">
-                    <v-checkbox
-                      v-model="bill.checkbox"
-                      :value="true"
-                      color="#7C83FD"
-                    />
-                  </td>
-                  <!-- เลขที่บิล -->
-                  <td @click="gotoDetailBill(bill)">
-                    <div>
-                      {{ bill.Bill_ID }}
-                    </div>
-                  </td>
-
-                  <!-- เลขที่เอกสาร -->
-                  <td @click="gotoDetailBill(bill)">
-                    <div>
-                      {{ bill.BillNumber }}
-                    </div>
-                  </td>
-
-                  <!-- วันที่สร้างบิล -->
-                  <td @click="gotoDetailBill(bill)">
-                    <div>
-                      {{ convertDate(bill.BillDate) }} <br /><span
-                        class="grey--text"
-                        >( เวลา : {{ bill.BillTime }} น.)</span
-                      >
-                    </div>
-                  </td>
-
-                  <!-- รหัสพนักงาน -->
-                  <td @click="gotoDetailBill(bill)" align="start">
-                    <div>
-                      {{ bill.EmpFullName }}
-                    </div>
-                  </td>
-
-                   <!-- FacTeam -->
-                  <td @click="gotoDetailBill(bill)" align="start">
-                    <div >
-                      {{ bill.OrderNumber }}
-                    </div>
-                  </td>
-
-                  <!-- FacTeam -->
-                  <td @click="gotoDetailBill(bill)">
-                    <div>
-                      {{ bill.FactoryTeam }}
-                    </div>
-                  </td>
-
-                  <!-- FacTeam -->
-                  <td @click="gotoDetailBill(bill)">
-                    <v-btn
-                      readonly
-                      small
-                      width="100"
-                      dark
-                      v-bind:class="{
-                        'color: blue lighten-1': +bill.BillStatus === 3,
-                        'color: indigo lighten-1': +bill.BillStatus === 2,
-                        'color: cyan lighten-1': +bill.BillStatus === 1,
-                        'color: blue-grey lighten-1':
-                          bill.BillStatus.trim() === '',
-                      }"
-                    >
-                      <span class="fontSize12" v-if="+bill.BillStatus === 3">
-                        รับแล้ว
-                      </span>
-                      <span class="fontSize12" v-if="+bill.BillStatus === 2">
-                        รอผลิตรับ 
-                        <!-- เดิมพิมพ์เอกสารแล้ว -->
-                      </span>
-                      <span class="fontSize12" v-if="+bill.BillStatus === 1">
-                        รอผลิตรับ
-                         <!-- เดิม รอพิมพ์เอกสาร -->
-                      </span>
-                      <span
-                        class="fontSize12"
-                        v-if="bill.BillStatus.trim() === ''"
-                      >
-                        ยังไม่ได้ยืนยันบิล
-                      </span>
-                    </v-btn>
-                    <div></div>
-                  </td>
-
-                  <td>
-                    <v-icon color="#7C83FD" @click="printByObj(bill)"
-                      >mdi-printer</v-icon
-                    >
-                  </td>
-                </tr>
-              </tbody>
+          <v-data-table
+            :headers="headers"
+            :items="dataBill"
+            :search="search"
+            :items-per-page="30"
+            class="bgColorHeader"
+          >
+            <template v-slot:top>
+              <v-row>
+                <v-col cols="3">
+                  <v-text-field
+                    append-icon="search"
+                    v-model="search"
+                    label="ค้นหาบิล"
+                    outlined
+                    dense
+                    class="ml-2"
+                  ></v-text-field>
+                </v-col>
+              </v-row>
             </template>
-          </v-simple-table>
+            <template v-slot:item="{ item }">
+              <tr
+                v-bind:class="{
+                  bgForSuccess: +item.BillStatus === 1,
+                }"
+              >
+                <!-- เลขที่บิล -->
+                <td align="center" @click="gotoDetailBill(item)">
+                  {{ item.Bill_ID }}
+                </td>
+                <!-- เลขที่เอกสาร -->
+                <td align="center" @click="gotoDetailBill(item)">
+                  {{ item.BillNumber }}
+                </td>
+                <!-- วันที่สร้างบิล -->
+                <td align="center" @click="gotoDetailBill(item)">
+                  {{ convertDate(item.BillDate) }} <br /><span
+                    class="grey--text"
+                    >( เวลา : {{ item.BillTime }} น.)</span
+                  >
+                </td>
+                <!-- ผู้สร้างบิล -->
+                <td align="center" @click="gotoDetailBill(item)">
+                  {{ item.EmpFullName }}
+                </td>
+                <!-- OrderNumber -->
+                <td align="center" @click="gotoDetailBill(item)">
+                  {{ item.OrderNumber }}
+                </td>
+                <!-- Fac Team -->
+                <td align="center" @click="gotoDetailBill(item)">
+                  {{ item.FactoryTeam }}
+                </td>
+                <!-- สถานะ -->
+                <td align="center" @click="gotoDetailBill(item)">
+                  <v-btn
+                    readonly
+                    small
+                    width="100"
+                    dark
+                    v-bind:class="{
+                      'color: blue lighten-1': +item.BillStatus === 3,
+                      'color: indigo lighten-1': +item.BillStatus === 2,
+                      'color: cyan lighten-1': +item.BillStatus === 1,
+                      'color: blue-grey lighten-1':
+                        item.BillStatus.trim() === '',
+                    }"
+                  >
+                    <span class="fontSize12" v-if="+item.BillStatus === 3">
+                      รับแล้ว
+                    </span>
+                    <span class="fontSize12" v-if="+item.BillStatus === 2">
+                      รอผลิตรับ
+                      <!-- เดิมพิมพ์เอกสารแล้ว -->
+                    </span>
+                    <span class="fontSize12" v-if="+item.BillStatus === 1">
+                      รอผลิตรับ
+                      <!-- เดิม รอพิมพ์เอกสาร -->
+                    </span>
+                    <span
+                      class="fontSize12"
+                      v-if="item.BillStatus.trim() === ''"
+                    >
+                      ยังไม่ได้ยืนยันบิล
+                    </span>
+                  </v-btn>
+                </td>
+                <!-- icon printer -->
+                <td align="center">
+                  <v-icon color="#7C83FD" @click="printByObj(item)"
+                    >mdi-printer</v-icon
+                  >
+                </td>
+              </tr>
+            </template>
+          </v-data-table>
         </v-card>
       </v-col>
     </v-row>
@@ -215,6 +154,58 @@ export default {
       dataBill: [],
       orderNumber: "",
       checkboxHeader: false,
+      search: "",
+      headers: [
+        {
+          text: "เลขที่บิล",
+          value: "Bill_ID",
+          sortable: false,
+          align: "center",
+          class: "bgColorHeader fontSize14",
+        },
+        {
+          text: "เลขที่เอกสาร",
+          value: "BillNumber",
+          align: "center",
+          class: "bgColorHeader fontSize14",
+        },
+        {
+          text: "วันที่สร้างบิล",
+          value: "BillDate",
+          align: "center",
+          class: "bgColorHeader fontSize14",
+        },
+        {
+          text: "ผู้สร้างบิล",
+          value: "EmpFullName",
+          align: "center",
+          class: "bgColorHeader fontSize14",
+        },
+        {
+          text: "OrderNumber",
+          value: "OrderNumber",
+          align: "center",
+          class: "bgColorHeader fontSize14",
+        },
+        {
+          text: "Fac Team",
+          value: "FactoryTeam",
+          align: "center",
+          class: "bgColorHeader fontSize14",
+        },
+        {
+          text: "สถานะ",
+          value: "Status",
+          align: "center",
+          class: "bgColorHeader fontSize14",
+        },
+        {
+          text: "พิมพ์เอกสาร",
+          value: "Print",
+          align: "center",
+          class: "bgColorHeader fontSize10",
+        },
+      ],
     };
   },
   components: {
@@ -240,10 +231,16 @@ export default {
   methods: {
     async checkinRoute() {
       // console.log('params',this.$route.path);
-      const result = await apiMpp.CheckinProgram(this.$store.state.username, this.$route.path);
+      const result = await apiMpp.CheckinProgram(
+        this.$store.state.username,
+        this.$route.path
+      );
     },
     async loadDataBill() {
-      const result = await apiMpp.getBillMaterails(this.orderNumber, this.$store.getters.Factory);
+      const result = await apiMpp.getBillMaterails(
+        this.orderNumber,
+        this.$store.getters.Factory
+      );
       this.dataBill = result;
       //   console.log(result);
     },
@@ -277,6 +274,8 @@ export default {
 <style scope>
 .bgColorHeader {
   background-color: rgb(124, 131, 253);
+  font-size: 16px !important;
+  text-align: center;
 }
 
 .bgForPrint {

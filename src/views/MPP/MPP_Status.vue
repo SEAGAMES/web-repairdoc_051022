@@ -28,8 +28,8 @@
           <!-- หัวตาราง -->
 
           <v-row class="mr-1 mb-n10">
-            <v-col cols="2.5" justify="center">
-              <v-row class="ml-n1 mt-n7">
+            <v-col cols="4" justify="center">
+              <v-row class="ml-n1 mt-n6">
                 <v-col align="start">
                   <v-checkbox
                     v-model="dataFilter.valueNonStone"
@@ -53,6 +53,26 @@
               </v-row>
             </v-col>
 
+            <v-col cols="5">
+              <!-- เลือกจากรหัสพลอย -->
+              <v-autocomplete
+                :items="dataFilter.InvCodeFilter"
+                v-model="dataFilter.InvCodeValues"
+                label="เลือกรหัสพลอย"
+                outlined
+                dense
+                width="120"
+                clearable
+                small-chips
+                deletable-chips
+                multiple
+                @change="filterAll()"
+                :disabled="dataFilter.valueNonStone"
+              />
+            </v-col>
+          </v-row>
+
+          <v-row class="mr-1 mb-n10">
             <!-- ค้นหาจากวันที่ส่งพลอยฝังในเทียน -->
             <v-col cols="2.5" class="">
               <v-text-field
@@ -65,6 +85,7 @@
                 @click="showDatePickerWaxSet()"
                 dense
                 :disabled="dataFilter.valueNonStone"
+                class="ml-2"
               ></v-text-field>
             </v-col>
 
@@ -241,8 +262,15 @@
 
             <!-- รหัสสินค้า -->
             <td align="center" justify="center" width="100">
-              <v-img :src="item.NewPict" width="120" class="mt-1" >
-                <div align="start" class="fontSize12">{{ item.OrderItemNo }}</div>
+              <v-img
+                :src="item.NewPict"
+                width="120"
+                :lazy-src="$store.state.no_picture"
+                class="mt-1"
+              >
+                <div align="start" class="fontSize12">
+                  {{ item.OrderItemNo }}
+                </div>
               </v-img>
 
               <div class="fontSize13">{{ item.ProductCode }}</div>
@@ -530,7 +558,12 @@
             :loading="loadPDF1"
             >พิมพ์วัตถุดิบ</v-btn
           >
-          <v-btn color="light-blue" dark @click="printOrder" class="ml-1" :loading="loadPDF2"
+          <v-btn
+            color="light-blue"
+            dark
+            @click="printOrder"
+            class="ml-1"
+            :loading="loadPDF2"
             >พิมพ์ตามลำดับคิว</v-btn
           >
         </v-col>
@@ -944,7 +977,7 @@ import PulseLoader from "../../components/Loadings/PulseLoader.vue";
 import DatePicker from "vue2-datepicker";
 import "vue2-datepicker/index.css";
 import apiCreatePDF from "../../services/apiCreatePDF";
-import moment from "moment";
+// import moment from "moment";
 import api from "../../services/api";
 
 export default {
@@ -1053,6 +1086,8 @@ export default {
           dataSelectChoice: [],
           dataSelected: [],
         },
+        InvCodeFilter: [],
+        InvCodeValues: [],
       },
       dataPopUpReserveQue: {
         dataReserveQue: [],
@@ -1081,18 +1116,17 @@ export default {
   },
   components: {
     PulseLoader,
-    // eslint-disable-next-line vue/no-unused-components
     DatePicker,
   },
   async mounted() {
-    // this.$emit("isCheckLogin", !(await api.isLoggedIn()));
+    this.spinner = true;
+    this.$emit("isCheckLogin", !(await api.isLoggedIn()));
     // console.log(this.$store.state.mppPage.mppSelectOrderToDetail);
-    // await this.checkinRoute();
+    await this.checkinRoute();
     this.orderNumber =
       this.$store.state.mppPage.mppSelectOrderToDetail.OrderNumber;
     // this.orderNumber = "CH-LK005/2022";
     // this.orderNumber = "CH-DGP002/2022";
-    this.spinner = true;
     await this.loadDataDetail();
     await this.loadDataMoldStatus();
     setTimeout(async () => {
@@ -1103,7 +1137,7 @@ export default {
         this.orderNumber === undefined ||
         this.orderNumber === null
       ) {
-        await this.$router.push("/mpp-orderStatus").catch(() => {});
+        // await this.$router.push("/mpp-orderStatus").catch(() => {});
       }
     }, 500);
   },
@@ -1119,11 +1153,12 @@ export default {
       const data = {
         orderNumber: this.orderNumber,
       };
-      const response = await apiMpp.mppMeshDataDetail(data);
-      this.dataStatus = response;
-      this.dataStatus2 = response;
+      const { result, uniKeys } = await apiMpp.mppMeshDataDetail(data);
+      this.dataStatus = result;
+      this.dataStatus2 = result;
       await this.getDataQueForFilter();
-      // console.log(response);
+      this.dataFilter.InvCodeFilter = uniKeys;
+      // console.log(this.dataStatus);
     },
     openModalReviseQue(data) {
       if (this.$store.getters.policyQueUpdate === "1") {
@@ -1232,6 +1267,9 @@ export default {
           this.dataFilter.datePickerWaxSet.valuesBetween = [];
           this.dataFilter.datePickerWaxSet.valueShowDate = "";
         }
+        if (this.dataFilter.InvCodeValues.length > 0) {
+          this.filterInvCode();
+        }
         // Filter วันที่ส่งพลอยทั้งหมด
         if (this.dataFilter.valuesBetweenDateAllStone.length === 2) {
           this.filterDateStoneAll();
@@ -1283,6 +1321,7 @@ export default {
       this.dataFilter.datePickerPearl.valuesBetween = [];
       this.dataFilter.datePickerPearl.valueShowDate = "";
       this.dataFilter.filterQue.dataSelected = [];
+      this.dataFilter.InvCodeValues = [];
       this.dataStatus = this.dataStatus2;
     },
     selectAll(event) {
@@ -1345,9 +1384,6 @@ export default {
           }, 1000);
         }
       }
-    },
-    test() {
-      // console.log(this.dataStatus);
     },
     async filterStatusStone() {
       // console.log(this.dataFilter.valuesFilterStone);
@@ -1494,6 +1530,17 @@ export default {
           this.dataFilter.filterQue.dataSelected.includes(obj.Piority)
         );
       }
+    },
+    async filterInvCode() {
+      this.dataStatus = this.dataStatus.filter((DataDetail) =>
+        [
+          ...DataDetail.stone
+            .filter((obj) =>
+              this.dataFilter.InvCodeValues.includes(obj.InvCode)
+            )
+            .map(({ OrderItemNo }) => OrderItemNo),
+        ].includes(DataDetail.OrderItemNo)
+      );
     },
     async printMaterial() {
       this.loadPDF1 = true;
@@ -1753,13 +1800,13 @@ export default {
                 headlineLevel: 1,
               }, // สถานะพลอย
               {
-                text: dataStone.QtyStone,
+                text: dataStone.QtyStone.toLocaleString(),
                 style: "rowRecode",
                 rowSpan: 1,
                 headlineLevel: 1,
               }, // จำนวนพลอยที่ใช้
-              { text: 0, style: "rowRecode", rowSpan: 1, headlineLevel: 1 }, // ผลิตรับแล้ว
-              { text: 0, style: "rowRecode", rowSpan: 1, headlineLevel: 1 }, // ค้างรับ
+              { text: dataStone.QtyFacReceive.toLocaleString(), style: "rowRecode", rowSpan: 1, headlineLevel: 1 }, // ผลิตรับแล้ว
+              { text: (dataStone.QtyStone - dataStone.QtyFacReceive).toLocaleString(), style: "rowRecode", rowSpan: 1, headlineLevel: 1 }, // ค้างรับ
               {
                 text: dataStone.LateDay,
                 style: "rowRecode",
@@ -1961,7 +2008,7 @@ export default {
           },
         },
       };
-      await apiCreatePDF.testNewprint(docDefinition);
+      await apiCreatePDF.createPDF(docDefinition);
       setTimeout(() => {
         this.loadPDF1 = false;
       }, 1500);
@@ -1974,9 +2021,13 @@ export default {
         "http://192.168.3.5:3000/picture/PICTURE2/Art%20Event%20Logo2.jpg"
       );
 
-      const dataConvert = await apiCreatePDF.convertImgMppPrint(this.dataStatus);
+      const dataConvert = await apiCreatePDF.convertImgMppPrint(
+        this.dataStatus
+      );
 
-      dataConvert.sort((a, b) =>a.Piority > b.Piority ? 1 : b.Piority > a.Piority ? -1 : 0);
+      dataConvert.sort((a, b) =>
+        a.Piority > b.Piority ? 1 : b.Piority > a.Piority ? -1 : 0
+      );
 
       const borderColorHeader = ["#000000", "#000000", "#000000", "#000000"];
 
@@ -2159,9 +2210,9 @@ export default {
     },
 
     convertDate(date) {
-      moment.locale("th");
+      // moment.locale("th");
       const dateParse = new Date(date);
-      return `${moment(dateParse).add(543, "year").format("L")}`;
+      return `${this.$moment(dateParse).add(543, "year").format("L")}`;
     },
 
     async showDueDateDefer(Inv) {
@@ -2181,7 +2232,7 @@ export default {
       this.dataPopupPurchaseDetail.dataPurchase =
         await apiMpp.getDataPurchaseDetail(this.orderNumber, Inv.InvCode);
       this.dataPopupPurchaseDetail.showPopup = true;
-      console.log(this.dataPopupPurchaseDetail.dataPurchase);
+      // console.log(this.dataPopupPurchaseDetail.dataPurchase);
     },
 
     // GAME

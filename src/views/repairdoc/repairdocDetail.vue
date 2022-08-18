@@ -102,9 +102,21 @@
           </span>
           <br />
           <span class="fontSize18">
-            <b> เลขเครื่อง : </b>
+            <b>
+              <!-- เพิ่ม -->
+              {{
+                $store.state.repairDetail.dataHeader.RepairBillNo != ""
+                  ? "เลขที่บิล : "
+                  : "เลขเครื่อง : "
+              }}
+            </b>
+            <!-- เพิ่ม -->
             <span class="pl-6 brown--text">
-              {{ $store.state.repairDetail.dataHeader.DeviceNo }}
+              {{
+                $store.state.repairDetail.dataHeader.RepairBillNo != ""
+                  ? $store.state.repairDetail.dataHeader.RepairBillNo
+                  : $store.state.repairDetail.dataHeader.DeviceNo
+              }}
             </span>
           </span>
           <br />
@@ -296,18 +308,18 @@
     <v-row class="ma-5">
       <v-spacer></v-spacer>
       <v-btn color="error" @click="$router.back()">กลับหน้าหลัก</v-btn>
-      <v-btn class="ml-5" @click="testPrint()">Print</v-btn>
+      <!-- เพิ่ม -->
+      <v-btn class="ml-5" @click="selectPrint()">Print</v-btn>
     </v-row>
   </v-container>
 </template>
-
 
 <script>
 import apiRepairDoc from "../../services/apiRepairDoc";
 import moment from "moment";
 // import pdfMake from "pdfmake";
 // import pdfFonts from "../../assets/Font/Sarabun/Sarabun-fonts.js";
-import apiCreatePDF from "../../services/apiCreatePDF"
+import apiCreatePDF from "../../services/apiCreatePDF";
 
 export default {
   name: "repairdoc-detail",
@@ -339,13 +351,15 @@ export default {
   methods: {
     convertName() {
       if (this.$store.state.repairDetail.dataHeader.ApprovName == null) {
-        this.$store.state.repairDetail.dataHeader.ApprovName = "_________________________";
+        this.$store.state.repairDetail.dataHeader.ApprovName =
+          "_________________________";
       }
       if (this.$store.state.repairDetail.dataHeader.NotifierName == null) {
-        this.$store.state.repairDetail.dataHeader.NotifierName = "_________________________";
+        this.$store.state.repairDetail.dataHeader.NotifierName =
+          "_________________________";
       }
-      if(this.$store.state.repairDetail.dataHeader.DeviceNo == 'null') {
-        this.$store.state.repairDetail.dataHeader.DeviceNo == ''
+      if (this.$store.state.repairDetail.dataHeader.DeviceNo == "null") {
+        this.$store.state.repairDetail.dataHeader.DeviceNo == "";
       }
     },
     checktimeLine() {
@@ -383,7 +397,10 @@ export default {
     },
     async loadDataHistoryBill() {
       // console.log(this.$store.state.repairDetail.dataHeader.DeviceNo);
-      if (this.$store.state.repairDetail.dataHeader.DeviceNo !== "null") {
+      if (
+        this.$store.state.repairDetail.dataHeader.DeviceNo !== "null" &&
+        this.$store.state.repairDetail.dataHeader.DeviceNo !== ""
+      ) {
         const result = await apiRepairDoc.getHistoryBill(
           this.$store.state.repairDetail.dataHeader.DeviceNo
         );
@@ -392,6 +409,20 @@ export default {
       }
       // console.log(result);
     },
+    async selectPrint() {
+      // เพิ่ม
+      if (
+        this.$store.state.repairDetail.dataHeader.DeviceNo == "" &&
+        this.$store.state.repairDetail.dataHeader.RepairBillNo == ""
+      ) {
+        this.testPrint();
+      } else if (
+        this.$store.state.repairDetail.dataHeader.DeviceNo != "" ||
+        this.$store.state.repairDetail.dataHeader.RepairBillNo != ""
+      ) {
+        this.testPrint();
+      }
+    },
     async testPrint() {
       //แปลงชื่อเป็น _ ถ้าไม่มีชื่อ
       this.convertName();
@@ -399,7 +430,16 @@ export default {
       const logoHeader = await this.convertImg(
         "http://192.168.3.5:3000/picture/PICTURE2/Art%20Event%20Logo2.jpg"
       );
-      // console.log(logoHeader);
+      const checkbox = await this.convertImg(
+        "http://192.168.3.5:3000/picture/PICTURE2/WEB_AE/MPP/MPPStatus/checkbox.png"
+      );
+
+      // console.log(this.$store.state.repairDetail);
+      if (this.$store.state.repairDetail.dataHeader.RepairBillNo != "") {
+        this.DeviceNo = "เลขบิลเเจ้งเเก้";
+      } else {
+        this.DeviceNo = "หมายเลขเครื่อง";
+      }
 
       const docDefinition = {
         content: [
@@ -412,7 +452,6 @@ export default {
                 alignment: "center",
               },
 
-
               { text: "", width: 230 },
 
               {
@@ -420,21 +459,23 @@ export default {
                   body: [
                     [
                       { text: "Job : ", alignment: "center" },
-                      { text: ` ${this.$store.state.repairDetail.dataHeader.BillDoc} `, alignment: "center" }
+                      {
+                        text: ` ${this.$store.state.repairDetail.dataHeader.BillDoc} `,
+                        alignment: "center",
+                      },
                     ],
 
                     [
                       {
-                        text:  `วันที่แจ้ง : ${this.$store.state.repairDetail.dataHeader.JobDateShow} `,
+                        text: `วันที่แจ้ง : ${this.$store.state.repairDetail.dataHeader.JobDateShow} `,
                         colSpan: 2,
                         alignment: "center",
-                        fontSize: 11
+                        fontSize: 11,
                       },
                     ],
                   ],
                 },
                 alignment: "center",
-                
               },
             ],
           },
@@ -507,12 +548,18 @@ export default {
                     ],
                     [
                       {
-                        text: "หมายเลขเครื่อง : ",
+                        text: `${this.DeviceNo}`,
                         styles: "text",
                         bold: true,
                       },
                       {
-                        text: `${this.$store.state.repairDetail.dataHeader.DeviceNo} `,
+                        text: `${
+                          this.$store.state.repairDetail.dataHeader
+                            .RepairBillNo != ""
+                            ? this.$store.state.repairDetail.dataHeader
+                                .RepairBillNo
+                            : this.$store.state.repairDetail.dataHeader.DeviceNo
+                        } `,
                         alignment: "center",
                       },
                     ],
@@ -569,7 +616,9 @@ export default {
                         bold: true,
                       },
                       {
-                        text: `${moment(this.$store.state.repairDetail.dataHeader.DueDate).format('LL')}`,
+                        text: `${moment(
+                          this.$store.state.repairDetail.dataHeader.DueDate
+                        ).format("LL")}`,
                         alignment: "center",
                       },
                     ],
@@ -598,6 +647,22 @@ export default {
             text: `${this.$store.state.repairDetail.dataHeader.RepairDes}`,
             margin: [20, 10, 0, 0],
           },
+          " ",
+          " ",
+          {
+            columns: [
+              {
+                image: checkbox,
+                width: 12,
+                style: "icon",
+              },
+              { text: "", width: 10 },
+              {
+                text: "ซ่อมไม่ได้ ต้องเบิกซื้อใหม่",
+                margin: [0, -3, 0, 0],
+              },
+            ],
+          },
           {
             columns: [
               {
@@ -615,30 +680,61 @@ export default {
           {
             columns: [
               {
-                text: `(   ${this.$store.state.repairDetail.dataHeader.ApprovName}    )`,
+                text: `(   ${this.$store.state.repairDetail.dataHeader.NotifierName}  )`,
                 style: "textAlign",
               },
               { text: "", width: 150 },
               {
-                text: `(   ${this.$store.state.repairDetail.dataHeader.NotifierName}    )`,
+                text: `   (   ${this.$store.state.repairDetail.dataHeader.ContactPersonName}   )    `,
                 style: "textAlign",
               },
             ],
-            margin: [15, 5, 0, 0],
+            margin: [35, 5, 0, 0],
           },
           {
             columns: [
               {
-                text: "ลงชื่อผู้อนุมัติใบแจ้งซ่อม",
+                text: `  ลงชื่อผู้ดำเนินงาน `,
                 style: "textAlign",
               },
               { text: "", width: 170 },
               {
-                text: "ลงชื่อผู้ดำเนินงาน",
+                text: "ผู้เเจ้งรับทราบเเล้ว",
                 style: "textAlign",
               },
             ],
-            margin: [25, 5, 0, 0],
+            margin: [40, 5, 0, 0],
+          },
+
+          {
+            columns: [
+              {
+                text: "..........................................................",
+                style: "textAlign",
+              },
+            ],
+            margin: [0, 50, 0, 0],
+          },
+          {
+            columns: [
+              {
+                text: ` ( ${this.$store.state.repairDetail.dataHeader.ApprovName} ) `,
+                style: "textAlign",
+              },
+              { text: "", width: 150 },
+            ],
+            margin: [35, 5, 0, 0],
+          },
+          {
+            columns: [
+              { text: "", width: 5 },
+              {
+                text: " ผู้จัดการรับทราบ ",
+                style: "textAlign",
+              },
+              { text: "", width: 170 },
+            ],
+            margin: [45, 5, 0, 0],
           },
         ],
         defaultStyle: {

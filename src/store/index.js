@@ -21,6 +21,7 @@ export default new Vuex.Store({
     fullName: "",
     EmpPict: "",
     Factory: "",
+    no_picture: "http://192.168.3.5:3000/picture/PICTURE2/no_picture.png",
     levelUser: {
       policyCode: "",
       policyName: "",
@@ -158,6 +159,29 @@ export default new Vuex.Store({
       mppBillIDForPrint: null,
       dataFilterMaster: null,
     },
+    castingPage: {
+      values_gotoDetail: {
+
+      },
+    },
+    processBill: {
+      processBillCreate: {
+        step1: {
+          selectedProcess: '',
+          selectedProcessName: '',
+        },
+        step2: {
+          selectedItem: [],
+          dataItem: [],
+          orderNumber: '',
+        },
+        step3: {
+          selectedProcess: '',
+          selectedProcessName: '',
+        }
+      }
+    },
+    filterFacwip: null
   },
 
   getters: {
@@ -438,7 +462,7 @@ export default new Vuex.Store({
         commit("SET_STATUSUPDATE", StatusUpdate);
         commit("SET_REVISEMOLDSTATUS", ReviseMoldStatus);
 
-      } 
+      }
       // else {
       //   dispatch("doLogout", {});
       // }

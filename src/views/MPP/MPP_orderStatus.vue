@@ -1,5 +1,9 @@
 <template>
-  <v-container grid-list-xs class="fontSarabun" v-if="!$store.state.loadingPage">
+  <v-container
+    grid-list-xs
+    class="fontSarabun"
+    v-if="!$store.state.loadingPage"
+  >
     <!-- Header Report -->
     <v-row class="mt-1">
       <!-- โดนัท1 -->
@@ -675,8 +679,8 @@ import StockCard from "../../components/card/StockCard.vue";
 import Doughnut from "../../components/charts/Doughnut.vue";
 import LineChart from "../../components/charts/LineChart.vue";
 import randomColor from "randomcolor";
-import apiMpp from '../../services/apiMpp';
-import api from "../../services/api"
+import apiMpp from "../../services/apiMpp";
+import api from "../../services/api";
 
 const options = {
   legend: {
@@ -857,7 +861,7 @@ export default {
     // await this.checkinRoute();
     if (this.$store.state.mppPage.dataFilterMaster) {
       this.dataFilter = this.$store.state.mppPage.dataFilterMaster;
-      await this.filterAll()
+      await this.filterAll();
     } else {
       this.dataFilter.valuesShowFilterDuedate = "2022-01-20 ~ 2025-12-31";
       this.dataFilter.valuesFilterDueDate[0] = "2022-01-20";
@@ -867,7 +871,7 @@ export default {
         this.dataFilter.valuesFilterDueDate[0]
       );
     }
-    this.$emit("isCheckLogin", !await api.isLoggedIn());
+    this.$emit("isCheckLogin", !(await api.isLoggedIn()));
     setTimeout(() => {
       this.$store.state.loadingPage = false;
     }, 500);
@@ -877,7 +881,10 @@ export default {
   methods: {
     async checkinRoute() {
       // console.log('params',this.$route.path);
-      const result = await apiMpp.CheckinProgram(this.$store.state.username, this.$route.path);
+      const result = await apiMpp.CheckinProgram(
+        this.$store.state.username,
+        this.$route.path
+      );
     },
     async loadData(maxDate, minDate) {
       this.isShowChart = false;
@@ -900,9 +907,12 @@ export default {
         this.orderStatus = this.orderStatus.filter(
           (obj) => obj.ProductionTeam === this.$store.getters.Factory
         );
-      } else if(this.$store.getters.Factory === "2" || this.$store.getters.Factory === "3") {
+      } else if (
+        this.$store.getters.Factory === "2" ||
+        this.$store.getters.Factory === "3"
+      ) {
         this.orderStatus = this.orderStatus.filter(
-          (obj) => obj.ProductionTeam === '2' || obj.ProductionTeam === '3'
+          (obj) => obj.ProductionTeam === "2" || obj.ProductionTeam === "3"
         );
       } else if (this.$store.getters.Factory === "") {
         this.orderStatus = [];
@@ -988,12 +998,16 @@ export default {
         0
       );
       this.dataDoughnut1 = {
-        labels: ["งานทั้ง FAC", "กำลังผลิต", "ส่ง QA"],
+        labels: [
+          // "งานทั้ง FAC",
+          "กำลังผลิต",
+          "ส่ง QA",
+        ],
         datasets: [
           {
             backgroundColor: ["#7267CB", "#98BAE7", "#B8E4F0"],
             data: [
-              this.dataChart.doughnut1.TotalQty,
+              // this.dataChart.doughnut1.TotalQty,
               this.dataChart.doughnut1.TotalQty -
                 this.dataChart.doughnut1.TotalQA,
               this.dataChart.doughnut1.TotalQA,

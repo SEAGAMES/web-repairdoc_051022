@@ -10,45 +10,67 @@
           :items-per-page="15"
         >
           <template v-slot:top>
-            <v-row>
-              <v-col cols="5">
+            <!-- <v-row>
+              <v-col cols="2">
                 <v-toolbar flat color="white">
-                  <v-toolbar-title>ใบแจ้งซื้อ</v-toolbar-title>
-                  <v-divider class="mx-4" inset vertical></v-divider>
-                  <v-text-field
-                    append-icon="search"
-                    v-model="dataFilter.search"
-                    label="ค้นหาด้วยชื่อ"
-                    class="mt-6"
-                    outlined
-                  ></v-text-field>
+                  <v-toolbar-title class="mt-n6">ใบแจ้งซื้อ</v-toolbar-title>
+                  <v-divider class="mx-4 red" inset vertical></v-divider>
                 </v-toolbar>
               </v-col>
-              <v-col cols="2">
-                <v-select
-                  v-model="statusShow.id"
-                  :items="statusShow"
-                  item-value="id"
-                  item-text="Status"
-                  label="สถานะที่ต้องการค้นหา"
-                  @change="filterByStatus(statusShow.id)"
+            </v-row> -->
+            <v-row>
+              <v-col cols="3">
+                <v-text-field
+                  class="ml-5"
+                  append-icon="search"
+                  v-model="dataFilter.search"
+                  label="ค้นหาจากเลขบิล"
                   outlined
-                  required
+                  dense
+                ></v-text-field>
+              </v-col>
+              <v-col cols="2">
+                <v-text-field
+                  label="ค้นหาจากวันที่"
+                  v-model="dataFilter.dateBetween.showDate"
+                  outlined
+                  hide-details
+                  color="amber"
+                  readonly
+                  append-icon="mdi-calendar-month"
+                  @click="dataFilter.dateBetween.showPopup = true"
+                  dense
                 />
               </v-col>
               <v-col cols="2">
                 <v-select
-                  v-model="SectionSelect.SectionCode"
+                  label="สถานะที่ต้องการค้นหา"
+                  v-model="dataFilter.status.values"
+                  :items="statusShow"
+                  item-value="id"
+                  item-text="Status"
+                  @change="filterAll()"
+                  outlined
+                  requiredd
+                  dense
+                  multiple
+                />
+              </v-col>
+              <v-col cols="2">
+                <v-select
+                  v-model="dataFilter.section.values"
                   :items="SectionSelect"
                   item-value="SectionCode"
                   item-text="SectionName"
                   label="เเผนกที่ต้องการค้นหา"
-                  @change="filterBySection(SectionSelect.SectionCode)"
+                  @change="filterAll()"
                   outlined
                   required
+                  dense
+                  multiple
                 />
               </v-col>
-              <v-col cols="3" class="mt-3">
+              <v-col cols="3">
                 <button class="red--text" @click="cancelSort()">ยกเลิก</button>
                 <v-btn
                   class="ml-9"
@@ -96,7 +118,7 @@
               <td align="center">
                 <v-btn
                   color="#f39C12"
-                  v-if="item.Status_Code == '0'"
+                  v-if="item.Status_Code === '0'"
                   dark
                   small
                   width="120"
@@ -106,10 +128,10 @@
                 <v-btn
                   color="#40C4FF"
                   align="center"
-                  v-if="item.Status_Code == '1'"
+                  v-if="item.Status_Code === '1'"
                   @click="changeStatus2(item, index)"
                   dark
-                  small
+                  smallv
                   width="120"
                 >
                   <v-icon size="15">mdi-clipboard-check</v-icon
@@ -118,7 +140,7 @@
                 <v-btn
                   color="#FF7043"
                   align="center"
-                  v-if="item.Status_Code == '2'"
+                  v-if="item.Status_Code === '2'"
                   @click="changeStatus2(item, index)"
                   dark
                   small
@@ -132,7 +154,7 @@
                   color="#0000FF"
                   align="center"
                   full-width
-                  v-if="item.Status_Code == '3'"
+                  v-if="item.Status_Code === '3'"
                   @click="changeStatus2(item, index)"
                   dark
                   width="120"
@@ -142,7 +164,7 @@
                 <v-btn
                   color="#64DD17"
                   align="center"
-                  v-if="item.Status_Code == '4'"
+                  v-if="item.Status_Code === '4'"
                   @click="changeStatus2(item, index)"
                   dark
                   small
@@ -154,7 +176,7 @@
                 <v-btn
                   color="#00a65a"
                   align="center"
-                  v-if="item.Status_Code == '5'"
+                  v-if="item.Status_Code === '5'"
                   @click="changeStatus2(item, index)"
                   dark
                   small
@@ -166,7 +188,7 @@
                 <v-btn
                   color="#F44336"
                   align="center"
-                  v-if="item.Status_Code == '6'"
+                  v-if="item.Status_Code === '6'"
                   @click="changeStatus2(item, index)"
                   dark
                   small
@@ -191,6 +213,22 @@
             </tr>
           </template>
         </v-data-table>
+
+        <!-- Popupปฎิทิน -->
+        <v-dialog
+          v-model="dataFilter.dateBetween.showPopup"
+          max-height="300"
+          max-width="300"
+          class="fontSarabun"
+        >
+          <v-date-picker
+            label="วันที่แจ้งซ่อม"
+            v-model="dataFilter.dateBetween.values"
+            range
+            @change="filterAll()"
+            color="amber"
+          ></v-date-picker>
+        </v-dialog>
 
         <!-- Popup เปลี่ยนสถานะ -->
         <v-dialog
@@ -255,6 +293,7 @@
 
 <script>
 import apiPurchaseRequest from "../../services/apiPurchaseRequest";
+import StockCard from "../../components/card/StockCard";
 import moment from "moment";
 import api from "../../services/api";
 
@@ -274,6 +313,20 @@ export default {
       statusChange: [],
       ItemsName: [],
       dataFilter: {
+        dateBetween: {
+          // minDate: "",
+          // maxDate: "",
+          values: [],
+          showPopup: false,
+          showDate: "",
+          // showdate: "2022-01-01 ~ 2025-12-31",
+        },
+        status: {
+          values: [],
+        },
+        section: {
+          values: [],
+        },
         search: "",
       },
       headers: [
@@ -386,22 +439,39 @@ export default {
       ],
     };
   },
+
+  components: {
+    StockCard,
+  },
+
   async mounted() {
     this.$emit("isCheckLogin", !(await api.isLoggedIn()));
     moment.locale("th");
-    if(this.$store.state.purchaseBillMaster.dataFilter) {
-      this.dataFilter = this.$store.state.purchaseBillMaster.dataFilter
+    if (this.$store.state.purchaseBillMaster.dataFilter) {
+      this.dataFilter = this.$store.state.purchaseBillMaster.dataFilter;
     }
     await this.getBillMaster();
     await this.getSection();
     await this.getItemsName();
     await this.getWarningStatus(this.$store.getters.username);
-    // console.log(this.$store.getters.username);
   },
   methods: {
+    async filterAll() {
+      this.getPurchaseBillMaster2 = this.getPurchaseBillMaster;
+
+      if (this.dataFilter.dateBetween.values.length > 0) {
+        this.filterDateBetween();
+      }
+
+      if (this.dataFilter.status.values.length > 0) {
+        this.filterByStatus();
+      }
+      if (this.dataFilter.section.values.length > 0) {
+        this.filterBySection();
+      }
+    },
     async getWarningStatus(empCode) {
       this.warningStatus = await apiPurchaseRequest.StatusWarning(empCode);
-      // console.log('result : ' , this.warningStatus)
       if (this.warningStatus > 0) {
         this.snackBarWerning = true;
       } else {
@@ -417,6 +487,7 @@ export default {
 
     async getBillMaster() {
       this.getPurchaseBillMaster = await apiPurchaseRequest.getBillMaster();
+      //console.log(this.getPurchaseBillMaster);
     },
     async getSection() {
       this.SectionSelect = await apiPurchaseRequest.getSection();
@@ -466,16 +537,64 @@ export default {
       }
     },
     //filterBySection
-    filterBySection(section_code) {
-      this.getPurchaseBillMaster2 = this.getPurchaseBillMaster.filter((S) => {
-        return S.Section_Code == section_code;
-      });
+    filterBySection() {
+      this.getPurchaseBillMaster2 = this.getPurchaseBillMaster2.filter(
+        (obj) => {
+          return this.dataFilter.section.values.includes(obj.Section_Code);
+        }
+      );
+      // setTimeout(() => {
+      //   console.log(this.getPurchaseBillMaster2)
+      // }, 500);
     },
     //filterByStatus
-    filterByStatus(Status_Code) {
-      this.getPurchaseBillMaster2 = this.getPurchaseBillMaster.filter((Z) => {
-        return Z.Status_Code == Status_Code;
-      });
+    filterByStatus() {
+      this.getPurchaseBillMaster2 = this.getPurchaseBillMaster2.filter(
+        (obj) => {
+          return this.dataFilter.status.values.includes(obj.Status_Code);
+        }
+      );
+      // this.getPurchaseBillMaster2 = this.getPurchaseBillMaster2.filter((obj, index) => index % 2 === 0);
+      // setTimeout(() => {
+      //     console.log(this.getPurchaseBillMaster2.length);
+      // }, 150);
+    },
+    async filterDateBetween() {
+      this.dataFilter.dateBetween.showPopup = false;
+      this.dataFilter.dateBetween.showDate = `${this.dataFilter.dateBetween.values[0]} ~ ${this.dataFilter.dateBetween.values[1]}`;
+      //หาค่ามากกว่าตอนกดเลือกวันที่ เวลาพนักงานกดสลับ
+      let data = {
+        maxDate: null,
+        minDate: null,
+      };
+      if (
+        this.dataFilter.dateBetween.values[1] >
+        this.dataFilter.dateBetween.values[0]
+      ) {
+        // console.log("มากกว่า");
+        data.maxDate = this.dataFilter.dateBetween.values[1];
+        data.minDate = this.dataFilter.dateBetween.values[0];
+        //console.log("data.maxDate : ", data.maxDate);
+        //console.log("data.minDate : ", data.minDate);
+      } else {
+        // console.log("น้อยกว่า");
+        data.minDate = this.dataFilter.dateBetween.values[1];
+        data.maxDate = this.dataFilter.dateBetween.values[0];
+        //console.log("data.minDate : ", data.minDate);
+        //console.log("data.maxDate : ", data.maxDate);
+      }
+
+      const res = await apiPurchaseRequest.getFilterPurchaseDate(data);
+      // this.billRepair = this.billRepair.filter((obj) =>
+      //   res.includes(obj.BillID)
+      // );
+      this.getPurchaseBillMaster2 = this.getPurchaseBillMaster2.filter(
+        (obj) => {
+          //console.log(res.includes(obj.Purchase_Bill_ID));
+          return res.includes(obj.Purchase_Bill_ID);
+        }
+      );
+      //console.log("getPurchaseBillMaster2 : ", this.getPurchaseBillMaster2);
     },
     changeStatus2(item, index) {
       //console.log("item : ", item);
@@ -546,9 +665,9 @@ export default {
       const dateParse = new Date(date);
       // const TestDate = new Date();
       // console.log(`${moment(dateParse).add(543, "year").format("L")} <br>(${moment(dateParse).format("LT")} น.)`)
-      return `${moment(dateParse)
-        .add(543, "year")
-        .format("L")} (${moment(dateParse).format("LT")} น.)`;
+      return `${moment(dateParse).add(543, "year").format("L")} (${moment(
+        dateParse
+      ).format("LT")} น.)`;
 
       // return `${moment.utc(dateParse).add(543, "year").format("L")} (${moment.utc(dateParse).add(543, "year").format("LT")} น.)`;
     },
@@ -561,7 +680,7 @@ export default {
       ) {
         //ถ้ายังไม่มีการอนุมัตบิล เเละ สถานะบิลยังไม่เป็นรับสินค้าเเล้วหรืออนุมัติ สามารถเเก้ไขได้
         if (
-          this.getPurchaseBillMaster[index].Inspactor_ID == null &&
+          this.getPurchaseBillMaster[index].Inspactor_ID === null &&
           this.getPurchaseBillMaster[index].Status_Code < 5
         ) {
           //console.log("เเก้ไขได้");
@@ -689,7 +808,7 @@ export default {
     },
     async confirmDelete(id) {
       const result = await apiPurchaseRequest.deletePuechaseAllBill(id);
-      if (result == "ok") {
+      if (result === "ok") {
         await this.$swal({
           title: "Update Success",
           icon: "success",
@@ -724,21 +843,16 @@ export default {
       this.dataFilter.search = null;
     },
     async confirmChangeStatus() {
-      //console.log("มาถึง confirmChangeStatus")
-      //console.log("this.DataStatuschange.Status_Code : " , this.DataStatuschange.Status_Code)
-      if (this.DataStatuschange.Status_Code == "0") {
+      if (this.DataStatuschange.Status_Code === "0") {
         const statusCode = (this.getPurchaseBillMaster2[
           this.index
         ].Status_Code = "0");
-        //console.log("this.getPurchaseBillMaster2[this.index].Status_Code : ",this.getPurchaseBillMaster2[this.index].Status_Code);
         this.getPurchaseBillMaster2[this.index].Status_Code = "0";
-        //console.log("statusCode : ", statusCode);
-        //console.log("this.DataStatuschange.Purchase_Bill_ID : ",this.DataStatuschange.Purchase_Bill_ID);
         const result = await apiPurchaseRequest.updateStatus(
           statusCode,
           this.DataStatuschange.Purchase_Bill_ID
         );
-        if (result.statusText == "OK") {
+        if (result.statusText === "OK") {
           await this.$swal({
             title: "Update Success",
             icon: "success",
@@ -760,9 +874,7 @@ export default {
           this.showConfirmButton = false;
         }
       }
-      if (this.DataStatuschange.Status_Code == "1") {
-        //console.log("มาถึง");
-        //console.log("this.getPurchaseBillMaster2[this.index].Status_Code : ",this.index);
+      if (this.DataStatuschange.Status_Code === "1") {
         const statusCode = (this.getPurchaseBillMaster2[
           this.index
         ].Status_Code = "1");
@@ -771,8 +883,7 @@ export default {
           statusCode,
           this.DataStatuschange.Purchase_Bill_ID
         );
-        //console.log("result : " , result.statusText);
-        if (result.statusText == "OK") {
+        if (result.statusText === "OK") {
           await this.$swal({
             title: "Update Success",
             icon: "success",
@@ -794,7 +905,7 @@ export default {
           this.showConfirmButton = false;
         }
       }
-      if (this.DataStatuschange.Status_Code == "2") {
+      if (this.DataStatuschange.Status_Code === "2") {
         const statusCode = (this.getPurchaseBillMaster2[
           this.index
         ].Status_Code = "2");
@@ -803,7 +914,7 @@ export default {
           statusCode,
           this.DataStatuschange.Purchase_Bill_ID
         );
-        if (result.statusText == "OK") {
+        if (result.statusText === "OK") {
           await this.$swal({
             title: "Update Success",
             icon: "success",
@@ -825,7 +936,7 @@ export default {
           this.showConfirmButton = false;
         }
       }
-      if (this.DataStatuschange.Status_Code == "3") {
+      if (this.DataStatuschange.Status_Code === "3") {
         const statusCode = (this.getPurchaseBillMaster2[
           this.index
         ].Status_Code = "3");
@@ -834,7 +945,7 @@ export default {
           statusCode,
           this.DataStatuschange.Purchase_Bill_ID
         );
-        if (result.statusText == "OK") {
+        if (result.statusText === "OK") {
           await this.$swal({
             title: "Update Success",
             icon: "success",
@@ -856,7 +967,7 @@ export default {
           this.showConfirmButton = false;
         }
       }
-      if (this.DataStatuschange.Status_Code == "4") {
+      if (this.DataStatuschange.Status_Code === "4") {
         const statusCode = (this.getPurchaseBillMaster2[
           this.index
         ].Status_Code = "4");
@@ -865,7 +976,7 @@ export default {
           statusCode,
           this.DataStatuschange.Purchase_Bill_ID
         );
-        if (result.statusText == "OK") {
+        if (result.statusText === "OK") {
           await this.$swal({
             title: "Update Success",
             icon: "success",
@@ -887,7 +998,7 @@ export default {
           this.showConfirmButton = false;
         }
       }
-      if (this.DataStatuschange.Status_Code == "5") {
+      if (this.DataStatuschange.Status_Code === "5") {
         const statusCode = (this.getPurchaseBillMaster2[
           this.index
         ].Status_Code = "5");
@@ -896,7 +1007,7 @@ export default {
           statusCode,
           this.DataStatuschange.Purchase_Bill_ID
         );
-        if (result.statusText == "OK") {
+        if (result.statusText === "OK") {
           await this.$swal({
             title: "Update Success",
             icon: "success",
@@ -918,7 +1029,7 @@ export default {
           this.showConfirmButton = false;
         }
       }
-      if (this.DataStatuschange.Status_Code == "6") {
+      if (this.DataStatuschange.Status_Code === "6") {
         const statusCode = (this.getPurchaseBillMaster2[
           this.index
         ].Status_Code = "6");
@@ -927,7 +1038,7 @@ export default {
           statusCode,
           this.DataStatuschange.Purchase_Bill_ID
         );
-        if (result.statusText == "OK") {
+        if (result.statusText === "OK") {
           await this.$swal({
             title: "Update Success",
             icon: "success",
